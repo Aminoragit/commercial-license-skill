@@ -32,6 +32,8 @@ npx commercial-license-skill install
 npx commercial-license-skill scan
 ```
 
+![commercial-license-skill CLI scan screenshot](commercial_license_skill_tui.png)
+
 ---
 
 ## 📂 상세 문서 목록 (Documentation)

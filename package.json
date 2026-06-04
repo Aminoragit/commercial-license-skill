@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "commercial-license-skill",
   "version": "0.2.0",
   "description": "Agent Skills-compatible commercial-safe license scanner and replacement recommender for Claude Code, Codex, OpenClaw, Hermes, Gemini CLI, and GitHub Copilot.",
@@ -38,7 +38,8 @@
     "LICENSE",
     "README.md",
     "README.ko.md",
-    "SECURITY.md"
+    "SECURITY.md",
+    "commercial_license_skill_tui.png"
   ],
   "repository": {
     "type": "git",

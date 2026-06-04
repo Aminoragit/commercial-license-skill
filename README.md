@@ -32,6 +32,8 @@ To scan your project for copyleft license risks and discover permissive alternat
 npx commercial-license-skill scan
 ```
 
+![commercial-license-skill CLI scan screenshot](commercial_license_skill_tui.png)
+
 ---
 
 ## 📂 Documentation
