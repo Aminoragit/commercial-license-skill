@@ -1,15 +1,15 @@
-{
-  "name": "parasite-cleaner",
+﻿{
+  "name": "commercial-license-skill",
   "version": "0.1.0",
   "description": "Agent Skills-compatible commercial-safe license scanner and replacement recommender for Claude Code, Codex, OpenClaw, Hermes, Gemini CLI, and GitHub Copilot.",
   "type": "module",
   "bin": {
-    "parasite-cleaner": "./bin/parasite-cleaner.mjs",
-    "leechshield": "./bin/parasite-cleaner.mjs"
+    "commercial-license-skill": "./bin/commercial-license-skill.mjs",
+    "leechshield": "./bin/commercial-license-skill.mjs"
   },
   "scripts": {
     "test": "node --test",
-    "scan:self": "node ./bin/parasite-cleaner.mjs scan . --format human",
+    "scan:self": "node ./bin/commercial-license-skill.mjs scan . --format human",
     "pack:check": "npm pack --dry-run"
   },
   "keywords": [
@@ -42,6 +42,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_GITHUB_ID/parasite-cleaner.git"
+    "url": "https://github.com/YOUR_GITHUB_ID/commercial-license-skill.git"
   }
 }
+

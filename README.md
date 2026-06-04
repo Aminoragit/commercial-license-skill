@@ -1,8 +1,8 @@
-# 🧼 ParasiteCleaner
+﻿# 🧼 ParasiteCleaner
 
 > Commercial-safe dependency triage & permissive replacement recommendations as a portable Agent Skill, npm CLI, and MCP Server.
 
-[![npm version](https://img.shields.io/npm/v/parasite-cleaner.svg?style=flat-square)](https://www.npmjs.com/package/parasite-cleaner)
+[![npm version](https://img.shields.io/npm/v/commercial-license-skill.svg?style=flat-square)](https://www.npmjs.com/package/commercial-license-skill)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Node Compatibility](https://img.shields.io/badge/node-%3E%3D%2018.0.0-green.svg?style=flat-square)](https://nodejs.org)
 [![Platform](https://img.shields.io/badge/platform-cross--platform-lightgrey.svg?style=flat-square)](#)
@@ -30,28 +30,28 @@
 Initialize the installation wizard to detect active agent environments and install interactively:
 
 ```bash
-npx parasite-cleaner install
+npx commercial-license-skill install
 ```
 
 > [!TIP]
 > To pin a specific verified version for organization-wide deployment consistency, specify the version directly:
 > ```bash
-> npx parasite-cleaner@0.1.0 install
+> npx commercial-license-skill@0.1.0 install
 > ```
 
 ### Advanced Install Options
 
 *   **Global Installation** (for selected agent environments):
     ```bash
-    npx parasite-cleaner install --global --frameworks claude-code,codex,openclaw,hermes,gemini-cli,copilot
+    npx commercial-license-skill install --global --frameworks claude-code,codex,openclaw,hermes,gemini-cli,copilot
     ```
 *   **Project-Local Installation** (universal skill directory):
     ```bash
-    npx parasite-cleaner install --project --frameworks universal
+    npx commercial-license-skill install --project --frameworks universal
     ```
 *   **Dry Run** (verify directories without writing):
     ```bash
-    npx parasite-cleaner install --global --all --dry-run
+    npx commercial-license-skill install --global --all --dry-run
     ```
 
 ---
@@ -61,7 +61,7 @@ npx parasite-cleaner install
 To scan project dependencies and generate a human-readable license compliance report:
 
 ```bash
-npx parasite-cleaner scan . --format human
+npx commercial-license-skill scan . --format human
 ```
 
 ### CI/CD Integration (JSON / SARIF)
@@ -70,10 +70,10 @@ Integrate license compliance checks into your build pipelines:
 
 ```bash
 # Output structured JSON report
-npx parasite-cleaner scan . --format json --output .parasite-cleaner/report.json
+npx commercial-license-skill scan . --format json --output .commercial-license-skill/report.json
 
 # Fail build on high-risk compliance warnings using SARIF
-npx parasite-cleaner scan . --format sarif --output reports/parasite-cleaner.sarif --fail-on high
+npx commercial-license-skill scan . --format sarif --output reports/commercial-license-skill.sarif --fail-on high
 ```
 
 ---
@@ -110,7 +110,7 @@ ParasiteCleaner inspects metadata and signals from multiple sources:
 Launch the stdio-based Model Context Protocol server:
 
 ```bash
-npx parasite-cleaner mcp
+npx commercial-license-skill mcp
 ```
 
 ### Provided Tools
@@ -129,14 +129,14 @@ For configuration details, please refer to [docs/MCP_SETUP.ko.md](docs/MCP_SETUP
 ## 🛠️ CLI Reference
 
 ```text
-parasite-cleaner install                  # Interactively install skills
-parasite-cleaner uninstall                # Remove registered skills
-parasite-cleaner doctor                   # Inspect local agent configs
-parasite-cleaner scan [path]              # Scan directory for license risks
-parasite-cleaner recommend <pkg> [--online] # Get permissive alternatives
-parasite-cleaner mcp                      # Run MCP server
+commercial-license-skill install                  # Interactively install skills
+commercial-license-skill uninstall                # Remove registered skills
+commercial-license-skill doctor                   # Inspect local agent configs
+commercial-license-skill scan [path]              # Scan directory for license risks
+commercial-license-skill recommend <pkg> [--online] # Get permissive alternatives
+commercial-license-skill mcp                      # Run MCP server
 ```
-*Run `parasite-cleaner --help` to show all flags and options.*
+*Run `commercial-license-skill --help` to show all flags and options.*
 
 ---
 
@@ -177,3 +177,4 @@ For full details, read [docs/PUBLISHING.ko.md](docs/PUBLISHING.ko.md).
 *   **No Code Laundering**: We do not mechanically rewrite restricted or GPL-licensed implementation files into permissive wrappers.
 *   **Standard Specification**: Alternative generation relies solely on public standard API schemas, CLI behaviors, user-owned tests, and public interfaces.
 *   **Verification Boundary**: The tool suggests alternatives; engineers must verify exact dependencies and licensing configurations before production deployment.
+

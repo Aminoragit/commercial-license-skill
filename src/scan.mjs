@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { classifyLicense, isAtLeast, LEVEL_ORDER } from './license-policy.mjs';
 import { recommendationsFor } from './catalog.mjs';
@@ -7,7 +7,7 @@ import { readJson, toPosix } from './utils.mjs';
 import { buildSourceIndex, findUsageEvidence } from './usage.mjs';
 
 function loadConfig(root) {
-  return readJson(path.join(root, 'parasite-cleaner.config.json'), {});
+  return readJson(path.join(root, 'commercial-license-skill.config.json'), {});
 }
 
 function deploymentQuestions() {
@@ -49,7 +49,7 @@ export function scanProject(root, options = {}) {
 
   return {
     schemaVersion: '1.0',
-    tool: 'parasite-cleaner',
+    tool: 'commercial-license-skill',
     generatedAt: new Date().toISOString(),
     root: toPosix(absoluteRoot),
     profile: options.profile ?? config.profile ?? 'commercial-safe',
@@ -69,7 +69,7 @@ export function toSarif(report) {
     version: '2.1.0',
     $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
     runs: [{
-      tool: { driver: { name: 'parasite-cleaner', version: '0.1.0', informationUri: 'https://github.com/YOUR_GITHUB_ID/parasite-cleaner' } },
+      tool: { driver: { name: 'commercial-license-skill', version: '0.1.0', informationUri: 'https://github.com/YOUR_GITHUB_ID/commercial-license-skill' } },
       results: risky.map((item) => ({
         ruleId: `license-${item.assessment.level}`,
         level: item.assessment.level === 'critical' || item.assessment.level === 'high' ? 'error' : 'warning',
@@ -112,3 +112,4 @@ export function writeReport(report, format, outputPath) {
   }
   return value;
 }
+

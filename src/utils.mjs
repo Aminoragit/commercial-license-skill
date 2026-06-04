@@ -1,10 +1,10 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { execFileSync } from 'node:child_process';
 
-export const TOOL_NAME = 'parasite-cleaner';
-export const SKILL_NAME = 'parasite-cleaner';
+export const TOOL_NAME = 'commercial-license-skill';
+export const SKILL_NAME = 'commercial-license-skill';
 
 export function readJson(filePath, fallback = null) {
   try {
@@ -132,3 +132,4 @@ export function walkFiles(root, predicate, options = {}) {
 export function toPosix(value) {
   return value.split(path.sep).join('/');
 }
+

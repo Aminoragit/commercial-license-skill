@@ -1,5 +1,6 @@
-node_modules/
+﻿node_modules/
 *.tgz
-.parasite-cleaner/
+.commercial-license-skill/
 reports/
 .DS_Store
+

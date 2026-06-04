@@ -1,9 +1,9 @@
-import readline from 'node:readline';
+﻿import readline from 'node:readline';
 import { scanProject } from './scan.mjs';
 import { recommendationsFor } from './catalog.mjs';
 import { searchNpmCandidates } from './registry.mjs';
 
-const SERVER_INFO = { name: 'parasite-cleaner', version: '0.1.0' };
+const SERVER_INFO = { name: 'commercial-license-skill', version: '0.1.0' };
 
 const TOOLS = [
   {
@@ -85,3 +85,4 @@ export async function runMcpServer() {
     }
   }
 }
+

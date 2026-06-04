@@ -1,10 +1,10 @@
----
-name: parasite-cleaner
+﻿---
+name: commercial-license-skill
 description: Scan a software project for licenses that may restrict commercial use or require disclosure of proprietary source code; explain engineering risk, identify usage paths, recommend permissive MIT/Apache/BSD alternatives, and prepare reviewable migration patches. Use for GPL, AGPL, LGPL, SSPL, BUSL, Commons Clause, source-available, open-source due diligence, license audit, dependency replacement, or pre-release compliance checks.
 license: Apache-2.0
 compatibility: Requires Node.js 18.17+ and npx. Designed for Agent Skills-compatible coding agents including Claude Code, Codex, OpenClaw, Hermes, Gemini CLI, and GitHub Copilot.
 metadata:
-  author: parasite-cleaner contributors
+  author: commercial-license-skill contributors
   version: "0.1.0"
 ---
 
@@ -21,10 +21,10 @@ Never copy, translate, mechanically rewrite, or derive implementation code from 
 1. Run a machine-readable scan:
 
    ```bash
-   npx parasite-cleaner@0.1.0 scan . --format json --output .parasite-cleaner/report.json
+   npx commercial-license-skill@0.1.0 scan . --format json --output .commercial-license-skill/report.json
    ```
 
-2. Read `.parasite-cleaner/report.json`. Start with `critical`, then `high`, then `review` items. Treat `UNKNOWN` as unresolved rather than safe.
+2. Read `.commercial-license-skill/report.json`. Start with `critical`, then `high`, then `review` items. Treat `UNKNOWN` as unresolved rather than safe.
 
 3. For every non-allowlisted dependency, inspect actual usage:
    - Find import, require, dynamic import, FFI, build, Docker, shell, and subprocess references.
@@ -55,12 +55,13 @@ Never copy, translate, mechanically rewrite, or derive implementation code from 
 ## Useful commands
 
 ```bash
-npx parasite-cleaner@0.1.0 scan . --format human
-npx parasite-cleaner@0.1.0 scan . --format sarif --output reports/parasite-cleaner.sarif --fail-on high
-npx parasite-cleaner@0.1.0 recommend <package-name> --online --json
-npx parasite-cleaner@0.1.0 mcp
+npx commercial-license-skill@0.1.0 scan . --format human
+npx commercial-license-skill@0.1.0 scan . --format sarif --output reports/commercial-license-skill.sarif --fail-on high
+npx commercial-license-skill@0.1.0 recommend <package-name> --online --json
+npx commercial-license-skill@0.1.0 mcp
 ```
 
 ## References
 
 Read `references/license-review-checklist.md` when a dependency is flagged. Read `references/framework-install-paths.md` when troubleshooting installation.
+

@@ -1,4 +1,4 @@
-import { classifyLicense } from './license-policy.mjs';
+﻿import { classifyLicense } from './license-policy.mjs';
 
 function normalizeRepository(repository) {
   if (!repository) return null;
@@ -16,7 +16,7 @@ export async function searchNpmCandidates(query, options = {}) {
   const timer = setTimeout(() => controller.abort(), Number(options.timeoutMs ?? 5000));
   try {
     const response = await fetch(endpoint, {
-      headers: { accept: 'application/json', 'user-agent': 'parasite-cleaner/0.1.0' },
+      headers: { accept: 'application/json', 'user-agent': 'commercial-license-skill/0.1.0' },
       signal: controller.signal
     });
     if (!response.ok) throw new Error(`npm registry returned HTTP ${response.status}`);
@@ -44,3 +44,4 @@ export async function searchNpmCandidates(query, options = {}) {
     clearTimeout(timer);
   }
 }
+

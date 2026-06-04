@@ -1,4 +1,4 @@
-import path from 'node:path';
+﻿import path from 'node:path';
 import { installSkill, uninstallSkill, renderInstallResult, detectFrameworks, supportedFrameworks } from './install.mjs';
 import { parseArgs, splitComma } from './utils.mjs';
 import { renderHuman, scanProject, shouldFail, toSarif, writeReport } from './scan.mjs';
@@ -10,19 +10,19 @@ const HELP = `
 ParasiteCleaner — commercial-safe license triage for agentic coding workflows
 
 Usage:
-  parasite-cleaner install [--global|--project] [--frameworks claude-code,codex,openclaw,hermes,gemini-cli,copilot,universal] [--all] [--yes] [--dry-run]
-  parasite-cleaner uninstall [--global|--project] [--frameworks ...] [--dry-run]
-  parasite-cleaner doctor [--json]
-  parasite-cleaner scan [path] [--format human|json|sarif] [--output file] [--include-dev] [--fail-on review|high|critical]
-  parasite-cleaner recommend <package> [--online] [--json]
-  parasite-cleaner mcp
-  parasite-cleaner help
+  commercial-license-skill install [--global|--project] [--frameworks claude-code,codex,openclaw,hermes,gemini-cli,copilot,universal] [--all] [--yes] [--dry-run]
+  commercial-license-skill uninstall [--global|--project] [--frameworks ...] [--dry-run]
+  commercial-license-skill doctor [--json]
+  commercial-license-skill scan [path] [--format human|json|sarif] [--output file] [--include-dev] [--fail-on review|high|critical]
+  commercial-license-skill recommend <package> [--online] [--json]
+  commercial-license-skill mcp
+  commercial-license-skill help
 
 Examples:
-  npx parasite-cleaner install
-  npx parasite-cleaner install --global --frameworks claude-code,codex,openclaw,hermes,gemini-cli,copilot
-  npx parasite-cleaner scan . --format sarif --output reports/parasite-cleaner.sarif --fail-on high
-  npx parasite-cleaner mcp
+  npx commercial-license-skill install
+  npx commercial-license-skill install --global --frameworks claude-code,codex,openclaw,hermes,gemini-cli,copilot
+  npx commercial-license-skill scan . --format sarif --output reports/commercial-license-skill.sarif --fail-on high
+  npx commercial-license-skill mcp
 `;
 
 function value(options, name, fallback) {
@@ -57,7 +57,7 @@ export async function main(argv) {
   }
   if (command === 'recommend') {
     const packageName = positionals[0];
-    if (!packageName) throw new Error('Usage: parasite-cleaner recommend <package> [--online]');
+    if (!packageName) throw new Error('Usage: commercial-license-skill recommend <package> [--online]');
     const curated = recommendationsFor(packageName);
     let discovered = [];
     let onlineError = null;
@@ -99,3 +99,4 @@ export async function main(argv) {
   }
   throw new Error(`Unknown command: ${command}\n\n${HELP.trim()}`);
 }
+
