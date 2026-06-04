@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.1] - 2026-06-04
 
+### Added
+- Added `homepage`, `bugs`, and `publishConfig` (access: public, provenance: true) fields in `package.json` for reliable provenance publishing.
+- Added prominent WARNING/Disclaimer alerts for legal notice (NOT LEGAL ADVICE / 법률 자문 아님) in `README.md` and `README.ko.md`.
+
 ### Changed
 - Bumped version to 0.3.1 to prepare for publication with npm provenance (`--provenance`).
 
