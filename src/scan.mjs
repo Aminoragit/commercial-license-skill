@@ -69,7 +69,7 @@ export function toSarif(report) {
     version: '2.1.0',
     $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
     runs: [{
-      tool: { driver: { name: 'commercial-license-skill', version: '0.1.0', informationUri: 'https://github.com/YOUR_GITHUB_ID/commercial-license-skill' } },
+      tool: { driver: { name: 'commercial-license-skill', version: '0.1.0', informationUri: 'https://github.com/Aminoragit/commercial-license-skill' } },
       results: risky.map((item) => ({
         ruleId: `license-${item.assessment.level}`,
         level: item.assessment.level === 'critical' || item.assessment.level === 'high' ? 'error' : 'warning',
@@ -112,5 +112,6 @@ export function writeReport(report, format, outputPath) {
   }
   return value;
 }
+
 
 

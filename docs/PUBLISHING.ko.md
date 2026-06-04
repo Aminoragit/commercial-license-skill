@@ -12,7 +12,7 @@
 
 ## 2. 저장소 placeholder 교체
 
-다음 두 파일의 `YOUR_GITHUB_ID`를 실제 GitHub ID 또는 조직명으로 교체합니다.
+다음 두 파일의 `Aminoragit`를 실제 GitHub ID 또는 조직명으로 교체합니다.
 
 - `package.json`
 - `src/scan.mjs`
@@ -47,4 +47,5 @@ npx @YOUR_NPM_SCOPE/commercial-license-skill install
 - 변경 이력
 - 지원 프레임워크 표
 - 법률 자문이 아닌 엔지니어링 선별 도구라는 고지
+
 
