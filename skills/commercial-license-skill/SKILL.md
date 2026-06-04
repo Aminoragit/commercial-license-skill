@@ -8,7 +8,7 @@ metadata:
   version: "0.1.0"
 ---
 
-# ParasiteCleaner
+# CommercialLicenseSkill
 
 Use this skill to run an engineering-first open-source license triage. Do not present the result as legal advice and do not claim that a license automatically “infects” an entire codebase merely because it appears in a manifest.
 
@@ -64,4 +64,5 @@ npx commercial-license-skill@0.1.0 mcp
 ## References
 
 Read `references/license-review-checklist.md` when a dependency is flagged. Read `references/framework-install-paths.md` when troubleshooting installation.
+
 

@@ -1,4 +1,4 @@
-﻿# ParasiteCleaner architecture
+﻿# CommercialLicenseSkill architecture
 
 ## 1. Portable skill layer
 
@@ -21,4 +21,5 @@ The MVP deliberately separates fact collection from legal conclusions. Planned u
 ## 4. Clean-room replacement rule
 
 The tool may generate adapters and replacement code only from the user's own call sites, public API docs, standards, and tests. It must never rewrite restricted implementation source into a permissively licensed clone.
+
 

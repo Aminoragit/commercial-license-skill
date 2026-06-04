@@ -7,7 +7,7 @@ import { searchNpmCandidates } from './registry.mjs';
 import { runMcpServer } from './mcp.mjs';
 
 const HELP = `
-ParasiteCleaner — commercial-safe license triage for agentic coding workflows
+CommercialLicenseSkill — commercial-safe license triage for agentic coding workflows
 
 Usage:
   commercial-license-skill install [--global|--project] [--frameworks claude-code,codex,openclaw,hermes,gemini-cli,copilot,universal] [--all] [--yes] [--dry-run]
@@ -99,4 +99,5 @@ export async function main(argv) {
   }
   throw new Error(`Unknown command: ${command}\n\n${HELP.trim()}`);
 }
+
 

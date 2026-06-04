@@ -1,6 +1,6 @@
-# License review checklist
+﻿# License review checklist
 
-ParasiteCleaner provides engineering triage, not legal advice. For each flagged component, capture:
+CommercialLicenseSkill provides engineering triage, not legal advice. For each flagged component, capture:
 
 1. Exact package, version, repository URL, package registry URL, and license file hash.
 2. SPDX identifier if available, plus exceptions, dual-license options, and custom clauses.
@@ -17,3 +17,4 @@ ParasiteCleaner provides engineering triage, not legal advice. For each flagged 
 - Escalate immediately: AGPL, SSPL, GPL in distributed or bundled outputs, BUSL, Commons Clause, Elastic License, non-commercial clauses, proprietary or custom terms.
 
 The policy is intentionally conservative. Legal obligations depend on exact license terms and facts.
+

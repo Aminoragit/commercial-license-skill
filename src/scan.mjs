@@ -82,7 +82,7 @@ export function toSarif(report) {
 
 export function renderHuman(report) {
   const lines = [];
-  lines.push('ParasiteCleaner — commercial-safe dependency triage');
+  lines.push('CommercialLicenseSkill — commercial-safe dependency triage');
   lines.push(`Root: ${report.root}`);
   lines.push(`Summary: ${report.summary.total} dependencies | critical ${report.summary.critical} | high ${report.summary.high} | review ${report.summary.review} | allow ${report.summary.allow}`);
   lines.push('');
@@ -112,4 +112,5 @@ export function writeReport(report, format, outputPath) {
   }
   return value;
 }
+
 
