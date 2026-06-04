@@ -1,4 +1,4 @@
-﻿# 🧼 ParasiteCleaner
+# 🧼 commercial-license-skill
 
 > Commercial-safe dependency triage & permissive replacement recommendations as a portable Agent Skill, npm CLI, and MCP Server.
 
@@ -9,7 +9,7 @@
 
 ---
 
-**ParasiteCleaner** is a lightweight utility designed to inspect project dependencies, highlight restrictive copyleft licenses, and recommend commercial-safe, permissive alternatives. It operates as an **Agent Skill**, **npm CLI**, and **stdio MCP Server**—fitting seamlessly into modern AI-assisted coding workflows (Claude Code, OpenAI Codex, OpenClaw, Gemini CLI, etc.).
+**commercial-license-skill** is a lightweight utility designed to inspect project dependencies, highlight restrictive copyleft licenses, and recommend commercial-safe, permissive alternatives. It operates as an **Agent Skill**, **npm CLI**, and **stdio MCP Server**—fitting seamlessly into modern AI-assisted coding workflows (Claude Code, OpenAI Codex, OpenClaw, Gemini CLI, etc.).
 
 > [!WARNING]
 > **Legal Disclaimer:** This tool is designed for engineering triage and risk screening, not legal counsel. The discovery of GPL/AGPL strings does not automatically establish open-source disclosure obligations. Factors like linking mechanisms, distribution models (SaaS vs. distribution), execution environments, and modified states must be separately evaluated.
@@ -80,7 +80,7 @@ npx commercial-license-skill scan . --format sarif --output reports/commercial-l
 
 ## ⚙️ MVP Scanning Coverage
 
-ParasiteCleaner inspects metadata and signals from multiple sources:
+commercial-license-skill inspects metadata and signals from multiple sources:
 
 *   **npm**: `package.json`, `package-lock.json`, and nested `node_modules/*/package.json` license properties.
 *   **Python**: `requirements.txt` and local `.dist-info/METADATA` records.
@@ -140,35 +140,16 @@ commercial-license-skill mcp                      # Run MCP server
 
 ---
 
-## 📂 Supported Skill Destinations
+## 📂 Supported Agent Frameworks
 
-| Agent Framework | Project Local Path | Global / Home Path |
-| :--- | :--- | :--- |
-| **Claude Code** | `.claude/skills` | `~/.claude/skills` |
-| **Codex** | `.agents/skills` | `~/.agents/skills` |
-| **OpenClaw** | `skills` | `~/.openclaw/skills` |
-| **Hermes Agent** | *(Not supported)* | `~/.hermes/skills` |
-| **Gemini CLI** | `.gemini/skills` | `~/.gemini/skills` |
-| **GitHub Copilot** | `.github/skills` | `~/.copilot/skills` |
-| **Universal Fallback** | `.agents/skills` | `~/.agents/skills` |
+The tool automatically integrates as an Agent Skill into major AI platforms:
+- **Claude Code** (`.claude/skills`)
+- **Codex** (`.agents/skills`)
+- **OpenClaw** (`skills`)
+- **Gemini CLI** (`.gemini/skills`)
+- **GitHub Copilot** (`.github/skills`)
 
----
-
-## 🏷️ Publishing Checklist
-
-1.  Replace `YOUR_GITHUB_ID` placeholders in `package.json` and `src/scan.mjs`.
-2.  Run test suites and pack validation:
-    ```bash
-    npm test
-    npm run pack:check
-    ```
-3.  Publish package publicly:
-    ```bash
-    npm login
-    npm publish --access public
-    ```
-
-For full details, read [docs/PUBLISHING.ko.md](docs/PUBLISHING.ko.md).
+*For specific directory installation paths, see [framework-install-paths.md](skills/commercial-license-skill/references/framework-install-paths.md).*
 
 ---
 
@@ -178,3 +159,5 @@ For full details, read [docs/PUBLISHING.ko.md](docs/PUBLISHING.ko.md).
 *   **Standard Specification**: Alternative generation relies solely on public standard API schemas, CLI behaviors, user-owned tests, and public interfaces.
 *   **Verification Boundary**: The tool suggests alternatives; engineers must verify exact dependencies and licensing configurations before production deployment.
 
+---
+*For maintainers who need to publish or test, refer to [docs/PUBLISHING.ko.md](docs/PUBLISHING.ko.md).*

@@ -1,4 +1,4 @@
-﻿# 🧼 ParasiteCleaner
+# 🧼 commercial-license-skill
 
 > 상업적으로 안전한 허용형 라이선스 필터링 및 대체재 추천을 지원하는 Agent Skill, npm CLI, 그리고 MCP 서버입니다.
 
@@ -9,7 +9,7 @@
 
 ---
 
-**ParasiteCleaner**는 프로젝트 의존성을 검사하여 상업 배포 시 위험할 수 있는 카피레프트(Copyleft) 라이선스를 분류하고, 보다 안전한 허용형(Permissive) 라이선스 대체 패키지를 추천하는 개발 선별 도구입니다. **Agent Skill**, **npm CLI**, **stdio MCP 서버** 형태로 연동되어, Claude Code, OpenAI Codex, OpenClaw, Gemini CLI 등 다양한 AI 에이전트 및 CLI 환경에 호환됩니다.
+**commercial-license-skill**은 프로젝트 내 의존성을 검사하여 상업 배포 시 위험할 수 있는 카피레프트(Copyleft) 라이선스를 분류하고, 보다 안전한 허용형(Permissive) 라이선스 대체 패키지를 추천하는 개발 선별 도구입니다. **Agent Skill**, **npm CLI**, **stdio MCP 서버** 형태로 연동되어, Claude Code, OpenAI Codex, OpenClaw, Gemini CLI 등 다양한 AI 에이전트 및 CLI 환경에 호환됩니다.
 
 > [!WARNING]
 > **법률적 고지 (Disclaimer):** 이 도구는 법률 자문이 아닌 엔지니어링 선별 및 사전 위험 검토용 도구입니다. 의존성 내에 GPL, AGPL 등의 라이선스가 발견되었다고 해서 반드시 소스 전체의 공개 의무가 자동으로 귀결되지는 않으며, 실제 링킹 방식, SaaS 배포 모델, 시스템 격리 여부 등에 따라 결론이 달라질 수 있습니다. 정식 릴리스 전에 법무 검토를 병행할 것을 강력히 권장합니다.
@@ -140,35 +140,16 @@ commercial-license-skill mcp                      # MCP 서버 구동
 
 ---
 
-## 📂 지원 스킬 경로
+## 📂 지원 에이전트 프레임워크
 
-| 프레임워크 에이전트 | 프로젝트 전용 경로 | 사용자 전역(Home) 경로 |
-| :--- | :--- | :--- |
-| **Claude Code** | `.claude/skills` | `~/.claude/skills` |
-| **Codex** | `.agents/skills` | `~/.agents/skills` |
-| **OpenClaw** | `skills` | `~/.openclaw/skills` |
-| **Hermes Agent** | *(지원 안 함)* | `~/.hermes/skills` |
-| **Gemini CLI** | `.gemini/skills` | `~/.gemini/skills` |
-| **GitHub Copilot** | `.github/skills` | `~/.copilot/skills` |
-| **범용 Fallback** | `.agents/skills` | `~/.agents/skills` |
+본 도구는 주요 AI 에이전트 플랫폼에 연동되어 스킬(Agent Skill) 형태로 로드될 수 있습니다:
+- **Claude Code** (`.claude/skills` 경로)
+- **Codex** (`.agents/skills` 경로)
+- **OpenClaw** (`skills` 경로)
+- **Gemini CLI** (`.gemini/skills` 경로)
+- **GitHub Copilot** (`.github/skills` 경로)
 
----
-
-## 🏷️ 배포 체크리스트
-
-1.  `package.json` 및 `src/scan.mjs` 내의 `YOUR_GITHUB_ID` 플레이스홀더를 사용자의 GitHub ID로 수정합니다.
-2.  로컬 테스트 및 패키지 번들 빌드 확인:
-    ```bash
-    npm test
-    npm run pack:check
-    ```
-3.  npm 레지스트리 배포:
-    ```bash
-    npm login
-    npm publish --access public
-    ```
-
-자세한 세부 배포 가이드는 [docs/PUBLISHING.ko.md](docs/PUBLISHING.ko.md)를 참고하세요.
+*에이전트별 구체적인 로컬 설치 경로는 [framework-install-paths.md](skills/commercial-license-skill/references/framework-install-paths.md) 파일을 확인하십시오.*
 
 ---
 
@@ -178,3 +159,5 @@ commercial-license-skill mcp                      # MCP 서버 구동
 *   **블랙박스 구현**: 추천 대체재 및 브릿지 코드 생성은 사용자 고유의 호출 파라미터, 공개 표준 API 사양 및 개발자가 직접 작성한 테스트 시나리오를 바탕으로 설계됩니다.
 *   **엔지니어 검증 책임**: 추천 시스템은 단지 후보군을 선별할 뿐이며, 프로덕션 적용 전에 대상 패키지의 라이선스 조항과 하위 의존성을 법률적으로 재확인할 것을 의무화합니다.
 
+---
+*배포 프로세스 또는 패키지 테스트는 [docs/PUBLISHING.ko.md](docs/PUBLISHING.ko.md)를 참고해 주십시오.*
