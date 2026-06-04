@@ -1,0 +1,47 @@
+{
+  "name": "parasite-cleaner",
+  "version": "0.1.0",
+  "description": "Agent Skills-compatible commercial-safe license scanner and replacement recommender for Claude Code, Codex, OpenClaw, Hermes, Gemini CLI, and GitHub Copilot.",
+  "type": "module",
+  "bin": {
+    "parasite-cleaner": "./bin/parasite-cleaner.mjs",
+    "leechshield": "./bin/parasite-cleaner.mjs"
+  },
+  "scripts": {
+    "test": "node --test",
+    "scan:self": "node ./bin/parasite-cleaner.mjs scan . --format human",
+    "pack:check": "npm pack --dry-run"
+  },
+  "keywords": [
+    "agent-skills",
+    "license",
+    "compliance",
+    "copyleft",
+    "gpl",
+    "agpl",
+    "claude-code",
+    "codex",
+    "openclaw",
+    "hermes-agent",
+    "gemini-cli",
+    "copilot"
+  ],
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "skills/",
+    "docs/",
+    "LICENSE",
+    "README.md",
+    "README.ko.md",
+    "SECURITY.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_GITHUB_ID/parasite-cleaner.git"
+  }
+}

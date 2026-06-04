@@ -1,0 +1,7 @@
+{
+  "name": "fixture-node-safe",
+  "private": true,
+  "dependencies": {
+    "mit-demo": "1.0.0"
+  }
+}

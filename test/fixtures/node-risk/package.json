@@ -1,0 +1,7 @@
+{
+  "name": "fixture-node-risk",
+  "private": true,
+  "dependencies": {
+    "gpl-demo": "1.0.0"
+  }
+}
