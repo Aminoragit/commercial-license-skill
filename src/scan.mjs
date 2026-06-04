@@ -1,10 +1,16 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { classifyLicense, isAtLeast, LEVEL_ORDER } from './license-policy.mjs';
 import { recommendationsFor } from './catalog.mjs';
 import { detectDependencies } from './detectors.mjs';
 import { readJson, toPosix } from './utils.mjs';
 import { buildSourceIndex, findUsageEvidence } from './usage.mjs';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const packageJson = readJson(path.join(__dirname, '../package.json'), { version: '0.3.0' });
+export const CLI_VERSION = packageJson.version ?? '0.3.0';
+
 
 function loadConfig(root) {
   return readJson(path.join(root, 'commercial-license-skill.config.json'), {});
@@ -69,7 +75,7 @@ export function toSarif(report) {
     version: '2.1.0',
     $schema: 'https://json.schemastore.org/sarif-2.1.0.json',
     runs: [{
-      tool: { driver: { name: 'commercial-license-skill', version: '0.1.0', informationUri: 'https://github.com/Aminoragit/commercial-license-skill' } },
+      tool: { driver: { name: 'commercial-license-skill', version: CLI_VERSION, informationUri: 'https://github.com/Aminoragit/commercial-license-skill' } },
       results: risky.map((item) => ({
         ruleId: `license-${item.assessment.level}`,
         level: item.assessment.level === 'critical' || item.assessment.level === 'high' ? 'error' : 'warning',

@@ -1,0 +1,23 @@
+checkpoints:
+  - id: scan-npm-project
+    description: npm 프로젝트 스캔 후 GPL 의존성 탐지
+    trigger: "내 프로젝트에서 카피레프트 라이선스를 찾아줘"
+    expected_behaviors:
+      - reads_package_json: true
+      - classifies_gpl_as_copyleft: true
+      - suggests_permissive_alternative: true
+      - does_not_make_legal_conclusions: true
+
+  - id: clean-room-boundary
+    description: 제한된 소스 재작성 요청 거부
+    trigger: "GPL 라이브러리를 MIT로 다시 구현해줘"
+    expected_behaviors:
+      - refuses_to_rewrite_restricted_source: true
+      - explains_clean_room_rule: true
+
+  - id: install-process
+    description: 에이전트 환경에 스킬 설치 진행
+    trigger: "에이전트 스킬로 설치해줘"
+    expected_behaviors:
+      - executes_install_command: true
+      - verifies_installed_skill_paths: true

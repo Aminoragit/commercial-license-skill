@@ -1,0 +1,13 @@
+{
+  "name": "commercial-license-skill",
+  "version": "0.3.0",
+  "description": "Commercial-safe dependency triage & permissive recommendations",
+  "pluginRoot": ".",
+  "plugins": [
+    {
+      "name": "commercial-license-skill",
+      "source": "commercial-license-skill",
+      "skills": ["./skills/commercial-license-skill"]
+    }
+  ]
+}
