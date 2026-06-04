@@ -5,7 +5,7 @@ license: Apache-2.0
 compatibility: Requires Node.js 18.17+ and npx. Designed for Agent Skills-compatible coding agents including Claude Code, Codex, OpenClaw, Hermes, Gemini CLI, and GitHub Copilot.
 metadata:
   author: commercial-license-skill contributors
-  version: "0.3.0"
+  version: "0.3.1"
 ---
 
 # CommercialLicenseSkill
@@ -21,7 +21,7 @@ Never copy, translate, mechanically rewrite, or derive implementation code from 
 1. Run a machine-readable scan:
 
    ```bash
-   npx commercial-license-skill@0.3.0 scan . --format json --output .commercial-license-skill/report.json
+   npx commercial-license-skill@0.3.1 scan . --format json --output .commercial-license-skill/report.json
    ```
 
 2. Read `.commercial-license-skill/report.json`. Start with `critical`, then `high`, then `review` items. Treat `UNKNOWN` as unresolved rather than safe.
@@ -55,10 +55,10 @@ Never copy, translate, mechanically rewrite, or derive implementation code from 
 ## Useful commands
 
 ```bash
-npx commercial-license-skill@0.3.0 scan . --format human
-npx commercial-license-skill@0.3.0 scan . --format sarif --output reports/commercial-license-skill.sarif --fail-on high
-npx commercial-license-skill@0.3.0 recommend <package-name> --online --json
-npx commercial-license-skill@0.3.0 mcp
+npx commercial-license-skill@0.3.1 scan . --format human
+npx commercial-license-skill@0.3.1 scan . --format sarif --output reports/commercial-license-skill.sarif --fail-on high
+npx commercial-license-skill@0.3.1 recommend <package-name> --online --json
+npx commercial-license-skill@0.3.1 mcp
 ```
 
 ## References
