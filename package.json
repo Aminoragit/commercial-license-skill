@@ -8,7 +8,7 @@
     "leechshield": "bin/commercial-license-skill.mjs"
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --test test/*.test.mjs",
     "scan:self": "node ./bin/commercial-license-skill.mjs scan . --format human",
     "pack:check": "npm pack --dry-run"
   },
