@@ -148,8 +148,19 @@ export async function installSkill(options = {}) {
       continue;
     }
     for (const destination of paths) {
+      let backedUp = null;
+      if (!options.dryRun && exists(destination)) {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const backupDir = `${destination}.bak-${timestamp}`;
+        try {
+          fs.renameSync(destination, backupDir);
+          backedUp = backupDir;
+        } catch {
+          try { removeDir(destination); } catch {}
+        }
+      }
       if (!options.dryRun) copyDir(skillSource(), destination);
-      results.push({ framework: id, status: options.dryRun ? 'planned' : 'installed', destination });
+      results.push({ framework: id, status: options.dryRun ? 'planned' : 'installed', destination, backedUp });
     }
   }
   return { scope, cwd, detected, results };
@@ -185,7 +196,11 @@ export function renderInstallResult(result) {
   for (const item of result.results) {
     const emoji = ADAPTERS[item.framework]?.emoji ?? '⚙️';
     if (item.status === 'installed') {
-      lines.push(`  ${c.green}✅ ${emoji} ${c.bold}${item.framework}${c.reset}  ➜  ${c.dim}${item.destination}${c.reset}`);
+      let line = `  ${c.green}✅ ${emoji} ${c.bold}${item.framework}${c.reset}  ➜  ${c.dim}${item.destination}${c.reset}`;
+      if (item.backedUp) {
+        line += `\n     ${c.yellow}↳ ⚠️ 기존 편집본 백업됨: ${item.backedUp}${c.reset}`;
+      }
+      lines.push(line);
     } else if (item.status === 'planned') {
       lines.push(`  ${c.cyan}📝 ${emoji} ${c.bold}${item.framework}${c.reset} (설치 예정)  ➜  ${c.dim}${item.destination}${c.reset}`);
     } else if (item.status === 'skipped') {

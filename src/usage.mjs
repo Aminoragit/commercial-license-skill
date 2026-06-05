@@ -59,12 +59,15 @@ export function findUsageEvidence(sourceIndex, item, options = {}) {
   const patterns = usagePatterns(item);
   const results = [];
   const max = options.max ?? 12;
+  const noSnippets = Boolean(options.noSnippets);
+  const maxSnippetLength = options.maxSnippetLength ?? 240;
   for (const file of sourceIndex) {
     for (let index = 0; index < file.lines.length; index += 1) {
       const line = file.lines[index];
       const matched = patterns.find((pattern) => pattern.regex.test(line));
       if (!matched) continue;
-      results.push({ file: file.relativePath, line: index + 1, kind: matched.kind, snippet: compactSnippet(line) });
+      const snippet = noSnippets ? '[REDACTED]' : compactSnippet(line).slice(0, maxSnippetLength);
+      results.push({ file: file.relativePath, line: index + 1, kind: matched.kind, snippet });
       if (results.length >= max) return results;
     }
   }

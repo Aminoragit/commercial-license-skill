@@ -1,9 +1,26 @@
-﻿import readline from 'node:readline';
-import { scanProject } from './scan.mjs';
+import readline from 'node:readline';
+import path from 'node:path';
+import { scanProject, CLI_VERSION } from './scan.mjs';
 import { recommendationsFor } from './catalog.mjs';
 import { searchNpmCandidates } from './registry.mjs';
 
-const SERVER_INFO = { name: 'commercial-license-skill', version: '0.1.0' };
+const CLI_VERSION_FALLBACK = CLI_VERSION;
+const SERVER_INFO = { name: 'commercial-license-skill', version: CLI_VERSION_FALLBACK };
+
+const ALLOW_ROOTS = [path.resolve(process.cwd())];
+for (let i = 0; i < process.argv.length; i++) {
+  if (process.argv[i] === '--allow-root' && process.argv[i + 1]) {
+    ALLOW_ROOTS.push(path.resolve(process.argv[i + 1]));
+  }
+}
+
+function isPathAllowed(targetPath) {
+  const resolvedTarget = path.resolve(targetPath);
+  return ALLOW_ROOTS.some(allowedRoot => {
+    const relative = path.relative(allowedRoot, resolvedTarget);
+    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+  });
+}
 
 const TOOLS = [
   {
@@ -50,7 +67,11 @@ export async function handleMcpRequest(message) {
     const name = params.name;
     const args = params.arguments ?? {};
     if (name === 'scan_project_licenses') {
-      return { jsonrpc: '2.0', id, result: result(scanProject(args.path ?? '.', { includeDev: Boolean(args.includeDev) })) };
+      const targetPath = args.path ?? '.';
+      if (!isPathAllowed(targetPath)) {
+        return { jsonrpc: '2.0', id, error: { code: -32602, message: `Access denied. Target path '${targetPath}' is outside allowed roots.` } };
+      }
+      return { jsonrpc: '2.0', id, result: result(scanProject(targetPath, { includeDev: Boolean(args.includeDev) })) };
     }
     if (name === 'recommend_permissive_alternatives') {
       const curated = recommendationsFor(args.packageName);

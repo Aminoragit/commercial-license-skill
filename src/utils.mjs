@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { execFileSync } from 'node:child_process';
@@ -95,8 +95,12 @@ export function splitComma(value) {
 
 export function normalizeLicense(raw) {
   if (!raw) return 'UNKNOWN';
+  if (Array.isArray(raw)) {
+    return raw.map(item => normalizeLicense(item)).filter(l => l !== 'UNKNOWN').join(' OR ') || 'UNKNOWN';
+  }
   if (typeof raw === 'object') {
     if (raw.type) return normalizeLicense(raw.type);
+    if (raw.license) return normalizeLicense(raw.license);
     return 'UNKNOWN';
   }
   return String(raw)

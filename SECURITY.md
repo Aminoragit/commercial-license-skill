@@ -1,4 +1,4 @@
-﻿# Security policy
+# Security policy
 
 CommercialLicenseSkill scans local project files. The MVP does not upload source code, contact external APIs, or execute project scripts during scanning.
 
@@ -11,7 +11,7 @@ Report vulnerabilities through a private GitHub security advisory after publishi
 This package intentionally declares no runtime dependencies and no npm lifecycle scripts. For reproducible automation, pin the package version instead of relying on a moving tag:
 
 ```bash
-npx commercial-license-skill@0.1.0 install
+npx commercial-license-skill@0.3.2 install
 ```
 
 Review the package tarball and checksum before organization-wide rollout.

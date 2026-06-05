@@ -43,8 +43,9 @@ function flattenNpmLockPackages(root, lock) {
   if (lock?.packages && typeof lock.packages === 'object') {
     for (const [key, value] of Object.entries(lock.packages)) {
       if (!key || !key.startsWith('node_modules/')) continue;
-      const name = key.slice('node_modules/'.length);
-      const metadata = readPackageLicense(root, name);
+      const name = value.name ?? key.split('node_modules/').pop();
+      const metadata = readPackageLicense(root, key.slice('node_modules/'.length));
+      const hasMetadata = exists(metadata.packagePath);
       result.push(packageRecord({
         ecosystem: 'npm',
         name,
@@ -52,7 +53,7 @@ function flattenNpmLockPackages(root, lock) {
         license: value.license ?? metadata.license,
         source: toPosix(relativeTo(root, path.join(root, 'package-lock.json'))),
         scope: 'transitive',
-        evidence: [toPosix(relativeTo(root, metadata.packagePath))],
+        evidence: hasMetadata ? [toPosix(relativeTo(root, metadata.packagePath))] : [],
         notes: ['Resolved from package-lock.json and installed package metadata when available.']
       }));
     }
@@ -74,6 +75,7 @@ export function detectNpm(root) {
   for (const [group, scope] of groups) {
     for (const [name, requestedVersion] of Object.entries(manifest[group] ?? {})) {
       const metadata = readPackageLicense(root, name);
+      const hasMetadata = exists(metadata.packagePath);
       records.push(packageRecord({
         ecosystem: 'npm',
         name,
@@ -81,8 +83,8 @@ export function detectNpm(root) {
         license: metadata.license,
         source: 'package.json',
         scope,
-        evidence: [toPosix(relativeTo(root, metadata.packagePath))],
-        notes: exists(metadata.packagePath) ? [] : ['Package is declared but not installed; license metadata could not be read locally.']
+        evidence: hasMetadata ? [toPosix(relativeTo(root, metadata.packagePath))] : [],
+        notes: hasMetadata ? [] : ['Package is declared but not installed; license metadata could not be read locally.']
       }));
     }
   }

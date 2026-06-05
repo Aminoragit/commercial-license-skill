@@ -12,15 +12,68 @@ const RULES = [
 
 export const LEVEL_ORDER = { allow: 0, info: 1, review: 2, high: 3, critical: 4 };
 
+function classifySingle(license) {
+  const normalized = license.trim().toUpperCase().replace(/[()]/g, '');
+  if (normalized === 'UNKNOWN' || normalized === '') {
+    return { level: 'review', reason: 'License metadata is missing or ambiguous.' };
+  }
+  for (const rule of RULES) {
+    if (rule.match.test(normalized)) return { level: rule.level, reason: rule.reason };
+  }
+  return { level: 'review', reason: 'License is not in the built-in allowlist.' };
+}
+
 export function classifyLicense(rawLicense) {
   const normalized = normalizeLicense(rawLicense);
   if (normalized === 'UNKNOWN' || normalized === '') {
     return { license: 'UNKNOWN', level: 'review', reason: 'License metadata is missing or ambiguous. Inspect the package repository and bundled license file before commercial use.' };
   }
-  for (const rule of RULES) {
-    if (rule.match.test(normalized)) return { license: normalized, level: rule.level, reason: rule.reason };
+
+  // Handle WITH exception
+  if (/\s+WITH\s+/i.test(normalized)) {
+    const parts = normalized.split(/\s+WITH\s+/i);
+    const base = classifySingle(parts[0]);
+    return {
+      license: normalized,
+      level: base.level,
+      reason: `${base.reason} (Includes exception: ${parts[1]})`
+    };
   }
-  return { license: normalized, level: 'review', reason: 'License is not in the built-in allowlist. Review the exact terms before commercial use.' };
+
+  // Handle OR expression
+  if (/\s+OR\s+/i.test(normalized)) {
+    const parts = normalized.split(/\s+OR\s+/i);
+    const classifications = parts.map(p => ({ name: p.trim(), ...classifySingle(p) }));
+    const allowedOption = classifications.find(c => c.level === 'allow');
+    if (allowedOption) {
+      return {
+        license: normalized,
+        level: 'allow',
+        reason: `Dual/Multi-licensed. Permissive choice '${allowedOption.name}' is available. (Other options: ${classifications.filter(c => c !== allowedOption).map(c => `${c.name} [${c.level}]`).join(', ')})`
+      };
+    }
+    const sorted = classifications.sort((a, b) => (LEVEL_ORDER[a.level] ?? 0) - (LEVEL_ORDER[b.level] ?? 0));
+    return {
+      license: normalized,
+      level: sorted[0].level,
+      reason: `Dual/Multi-licensed expression. The lowest risk option is '${sorted[0].name}' [${sorted[0].level}].`
+    };
+  }
+
+  // Handle AND expression
+  if (/\s+AND\s+/i.test(normalized)) {
+    const parts = normalized.split(/\s+AND\s+/i);
+    const classifications = parts.map(p => ({ name: p.trim(), ...classifySingle(p) }));
+    const sorted = classifications.sort((a, b) => (LEVEL_ORDER[b.level] ?? 0) - (LEVEL_ORDER[a.level] ?? 0));
+    return {
+      license: normalized,
+      level: sorted[0].level,
+      reason: `Combined license requirements (AND). Highest risk option is '${sorted[0].name}' [${sorted[0].level}].`
+    };
+  }
+
+  const base = classifySingle(normalized);
+  return { license: normalized, level: base.level, reason: base.reason };
 }
 
 export function isAtLeast(level, threshold) {

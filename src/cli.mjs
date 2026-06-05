@@ -1,4 +1,4 @@
-﻿import path from 'node:path';
+import path from 'node:path';
 import { installSkill, uninstallSkill, renderInstallResult, detectFrameworks, supportedFrameworks } from './install.mjs';
 import { parseArgs, splitComma } from './utils.mjs';
 import { renderHuman, scanProject, shouldFail, toSarif, writeReport } from './scan.mjs';
@@ -91,7 +91,13 @@ export async function main(argv) {
     const root = positionals[0] ?? '.';
     const format = value(options, 'format', 'human');
     if (!['human', 'json', 'sarif'].includes(format)) throw new Error(`Unsupported format: ${format}`);
-    const report = scanProject(root, { includeDev: Boolean(options['include-dev']), profile: value(options, 'profile', 'commercial-safe'), ignorePackages: splitComma(options.ignore) });
+    const report = scanProject(root, {
+      includeDev: Boolean(options['include-dev']),
+      profile: value(options, 'profile', 'commercial-safe'),
+      ignorePackages: splitComma(options.ignore),
+      noSnippets: Boolean(options['no-snippets']),
+      maxSnippetLength: options['max-snippet-length'] ? Number(options['max-snippet-length']) : undefined
+    });
     console.log(writeReport(report, format, options.output));
     const threshold = value(options, 'fail-on', null);
     if (threshold && shouldFail(report, threshold)) process.exitCode = 2;

@@ -36,7 +36,10 @@ export function scanProject(root, options = {}) {
     .filter((item) => !ignoredNames.has(item.name.toLowerCase()))
     .map((item) => {
       const assessment = classifyLicense(item.license);
-      const usageEvidence = findUsageEvidence(sourceIndex, item);
+      const usageEvidence = findUsageEvidence(sourceIndex, item, {
+        noSnippets: Boolean(options.noSnippets ?? config.noSnippets),
+        maxSnippetLength: Number(options.maxSnippetLength ?? config.maxSnippetLength ?? 240)
+      });
       return {
         ...item,
         usageEvidence,
