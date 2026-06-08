@@ -2,11 +2,10 @@
 
 > Commercial-safe dependency triage & permissive recommendations as a portable Agent Skill and CLI.
 
-[English](#-english) | [한국어](#-한국어)
+[English](#-english) | [한국어](https://github.com/Aminoragit/commercial-license-skill/blob/e8465a5d7880fb6af92a8406cc285d23def28234/README.ko.md)
 
 ---
 
-## 🇺🇸 English
 
 [![npm version](https://img.shields.io/npm/v/commercial-license-skill.svg?style=flat-square)](https://www.npmjs.com/package/commercial-license-skill)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
