@@ -1,4 +1,4 @@
-import { classifyLicense } from './license-policy.mjs';
+import { classifyLicense, validateAllowedLicenses } from './license-policy.mjs';
 import { CLI_VERSION } from './scan.mjs';
 
 function normalizeRepository(repository) {
@@ -9,6 +9,8 @@ function normalizeRepository(repository) {
 }
 
 export async function searchNpmCandidates(query, options = {}) {
+  validateAllowedLicenses(options.allowedLicenses);
+  if (!Number.isFinite(Number(options.size ?? 12))) throw new Error('Candidate size must be a finite number');
   const size = Math.max(1, Math.min(Number(options.size ?? 12), 30));
   const endpoint = new URL('https://registry.npmjs.org/-/v1/search');
   endpoint.searchParams.set('text', String(query));
@@ -25,7 +27,7 @@ export async function searchNpmCandidates(query, options = {}) {
     return (body.objects ?? [])
       .map((item) => {
         const pkg = item.package ?? {};
-        const assessment = classifyLicense(pkg.license);
+        const assessment = classifyLicense(pkg.license, options);
         return {
           name: pkg.name,
           version: pkg.version,
@@ -36,10 +38,11 @@ export async function searchNpmCandidates(query, options = {}) {
           score: Number(item.score?.final ?? 0),
           assessment,
           source: 'npm-registry-search',
+          verification: 'metadata-only',
           note: 'Discovery candidate only. Verify exact repository license, transitive dependencies, maintenance activity, API fit, and migration tests before adoption.'
         };
       })
-      .filter((item) => item.name && item.assessment.level === 'allow')
+      .filter((item) => item.name && item.name.toLowerCase() !== String(options.excludeName ?? '').toLowerCase() && item.assessment.level === 'allow')
       .sort((a, b) => b.score - a.score);
   } finally {
     clearTimeout(timer);

@@ -1,20 +1,26 @@
-﻿# License review checklist
+# Evidence and replacement checklist
 
-CommercialLicenseSkill provides engineering triage, not legal advice. For each flagged component, capture:
+## Inventory beyond a single manifest
 
-1. Exact package, version, repository URL, package registry URL, and license file hash.
-2. SPDX identifier if available, plus exceptions, dual-license options, and custom clauses.
-3. Whether the component is direct, transitive, dev-only, optional, bundled, modified, or invoked as a separate executable.
-4. Delivery model: SaaS-only, distributed binary, client app, mobile app, on-premise deployment, SDK, CLI, container image, or source release.
-5. Evidence: manifest, lock file, import references, build configuration, Dockerfile, shell command, and output artifact inspection.
-6. Replacement candidates: repository, exact license, maintenance activity, transitive dependency risk, API-fit estimate, and migration test plan.
-7. Notices, attributions, source offers, and modification records to preserve.
+- Manifests, supported and unsupported lockfiles, workspace packages, SBOMs, nested dependencies, optional/peer and build/dev dependencies.
+- Native executables, image/video codecs, containers and OS packages; inspect the actual binary/build flags, not just a JavaScript wrapper.
+- Vendored files, copied snippets, generated bundles, templates, fonts, icons, photos, illustrations, models, weights and datasets. Inspect origin links, sidecar terms, attribution and purchase records.
+- SaaS and client-distributed portions separately, including browser JavaScript and SDKs. A dev-only package may contribute code/assets to the shipped build.
 
-## Default engineering policy
+## Minimum evidence per component
 
-- Allow by default: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, Zlib, BSL-1.0, CC0-1.0, Unlicense.
-- Manual review: MPL, EPL, CDDL, LGPL, unknown, compound SPDX expressions, dual licenses, exceptions.
-- Escalate immediately: AGPL, SSPL, GPL in distributed or bundled outputs, BUSL, Commons Clause, Elastic License, non-commercial clauses, proprietary or custom terms.
+Identity/version or commit; origin and artifact path/URL; license expression and exact text; retrieval date and hash when practical; direct/transitive/dev scope; local usage/build evidence; modifications and distribution; notices and source obligations; unresolved conflicts. A metadata declaration is weaker than checking the selected artifact. Missing provenance means unresolved.
 
-The policy is intentionally conservative. Legal obligations depend on exact license terms and facts.
+## Candidate gate
 
+1. Exact version/commit exists and is obtainable from a primary upstream source.
+2. Its actual artifact terms satisfy the user's requested conditions, including exceptions and separately licensed files.
+3. Critical transitive/native components are checked; unresolved dependencies are named.
+4. Required APIs, output quality, platforms, performance, maintenance and cost have evidence. Record release dates and deprecation information rather than inventing a maintenance score.
+5. Migration work and tests cover the user's operations. No drop-in claim without a matching API and executed tests.
+
+If any gate lacks evidence, label the candidate `unverified` or `partial` and state the missing check. Do not manufacture a second recommendation to fill a table. Search results and the built-in catalog are leads, not adoption decisions.
+
+## Release follow-through
+
+Keep required LICENSE/NOTICE and attribution material, modification records and source offers. Remove an old dependency only after verifying it is absent from the lockfile, bundles, containers and copied assets in scope. Re-scan the final artifact where tooling permits; document remaining inventory gaps. Do not upload proprietary source or run scripts from inspected packages during this review.

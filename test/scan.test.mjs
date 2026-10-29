@@ -6,11 +6,11 @@ import { scanProject, shouldFail, toSarif } from '../src/scan.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
-test('flags GPL runtime dependency and recommends curated replacement', () => {
+test('flags GPL runtime dependency without inventing an unknown replacement', () => {
   const report = scanProject(path.join(here, 'fixtures', 'node-risk'));
   assert.equal(report.summary.high, 1);
   assert.equal(report.dependencies[0].name, 'gpl-demo');
-  assert.equal(report.dependencies[0].recommendations[0].name, 'mit-demo');
+  assert.deepEqual(report.dependencies[0].recommendations, []);
   assert.equal(shouldFail(report, 'high'), true);
 });
 

@@ -27,6 +27,10 @@ const ADAPTERS = {
     title: 'OpenAI Codex', command: 'codex', clues: ['.codex'], emoji: '🧠',
     destinations: { project: ['.agents/skills'], global: [homePath('.agents', 'skills')] }
   },
+  antigravity: {
+    title: 'Google Antigravity (agy CLI)', command: 'agy', clues: ['.agents', '.gemini/antigravity-cli'], emoji: '🚀',
+    destinations: { project: ['.agents/skills'], global: [homePath('.gemini', 'antigravity-cli', 'skills')] }
+  },
   openclaw: {
     title: 'OpenClaw', command: 'openclaw', clues: ['.openclaw'], emoji: '🛡️',
     destinations: { project: ['skills'], global: [homePath('.openclaw', 'skills')] }
@@ -98,7 +102,7 @@ async function chooseInteractive(detected) {
     output.write(`\n설치할 프레임워크 번호를 반점(${c.bold},${c.reset})으로 구분해 입력해 주세요.\n`);
     
     const defaults = detected.map((item, index) => item.detected ? String(index + 1) : null).filter(Boolean);
-    const defaultStr = defaults.join(',') || '7';
+    const defaultStr = defaults.join(',') || String(detected.findIndex(item => item.id === 'universal') + 1);
     
     const answer = await rl.question(`👉 번호 입력 [기본값: ${c.bold}${c.green}${defaultStr}${c.reset}]: `);
     const raw = answer.trim() || defaultStr;
@@ -134,13 +138,16 @@ function destinationPaths(frameworkId, scope, cwd) {
 }
 
 export async function installSkill(options = {}) {
+  if (options.global && options.project) throw new Error('Choose either --global or --project');
   const cwd = path.resolve(options.cwd ?? process.cwd());
   const detected = detectFrameworks(cwd);
   const requested = splitComma(options.frameworks);
   const automaticallyDetected = detected.filter((item) => item.detected).map((item) => item.id);
   const frameworkIds = requested.length ? requested : options.all ? Object.keys(ADAPTERS) : options.yes ? (automaticallyDetected.length ? automaticallyDetected : ['universal']) : await chooseInteractive(detected);
   const scope = await chooseScope(options);
+  for (const id of frameworkIds) if (!ADAPTERS[id]) throw new Error(`Unsupported framework: ${id}`);
   const results = [];
+  const visited = new Set();
   for (const id of [...new Set(frameworkIds)]) {
     const paths = destinationPaths(id, scope, cwd);
     if (!paths.length) {
@@ -148,6 +155,15 @@ export async function installSkill(options = {}) {
       continue;
     }
     for (const destination of paths) {
+      if (path.resolve(destination) === path.resolve(skillSource())) {
+        results.push({ framework: id, status: 'skipped', reason: 'Destination is the source skill; no copy needed.' });
+        continue;
+      }
+      if (visited.has(destination)) {
+        results.push({ framework: id, status: 'skipped', reason: 'Shared destination already handled by another selected framework.' });
+        continue;
+      }
+      visited.add(destination);
       let backedUp = null;
       if (!options.dryRun && exists(destination)) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -155,11 +171,20 @@ export async function installSkill(options = {}) {
         try {
           fs.renameSync(destination, backupDir);
           backedUp = backupDir;
-        } catch {
-          try { removeDir(destination); } catch {}
+        } catch (error) {
+          throw new Error(`Cannot back up existing skill at ${destination}; no files removed. ${error.message}`);
         }
       }
-      if (!options.dryRun) copyDir(skillSource(), destination);
+      if (!options.dryRun) {
+        try { copyDir(skillSource(), destination); }
+        catch (error) {
+          if (backedUp) {
+            removeDir(destination);
+            fs.renameSync(backedUp, destination);
+          }
+          throw error;
+        }
+      }
       results.push({ framework: id, status: options.dryRun ? 'planned' : 'installed', destination, backedUp });
     }
   }
@@ -167,14 +192,17 @@ export async function installSkill(options = {}) {
 }
 
 export function uninstallSkill(options = {}) {
+  if (options.global && options.project) throw new Error('Choose either --global or --project');
   const cwd = path.resolve(options.cwd ?? process.cwd());
   const requested = splitComma(options.frameworks);
   const frameworkIds = requested.length ? requested : Object.keys(ADAPTERS);
+  for (const id of frameworkIds) if (!ADAPTERS[id]) throw new Error(`Unsupported framework: ${id}`);
   const scopes = options.global ? ['global'] : options.project ? ['project'] : ['project', 'global'];
   const results = [];
   for (const id of frameworkIds) {
     for (const scope of scopes) {
       for (const destination of destinationPaths(id, scope, cwd)) {
+        if (path.resolve(destination) === path.resolve(skillSource())) continue;
         if (exists(destination)) {
           if (!options.dryRun) removeDir(destination);
           results.push({ framework: id, scope, status: options.dryRun ? 'planned-remove' : 'removed', destination });

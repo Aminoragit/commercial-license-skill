@@ -11,24 +11,26 @@ const CATALOG = {
     { name: 'sharp', license: 'Apache-2.0', note: 'Node image processing backed by libvips; map only the operations your project uses.' },
     { name: 'jimp', license: 'MIT', note: 'Pure-JavaScript image processing for simpler workloads.' }
   ],
-  'ffmpeg': [
-    { name: 'sharp', license: 'Apache-2.0', note: 'Only for still-image transformations; not a video replacement.' }
-  ],
-  'mysql': [
-    { name: 'postgres', license: 'MIT', note: 'Node PostgreSQL client; relevant only if a database migration is acceptable.' }
-  ],
   'chart.js': [
     { name: 'echarts', license: 'Apache-2.0', note: 'Alternative charting library; API migration required.' },
     { name: 'recharts', license: 'MIT', note: 'React-oriented alternative; suitable only for React applications.' }
-  ],
-  'gpl-demo': [
-    { name: 'mit-demo', license: 'MIT', note: 'Fixture replacement used by the test suite.' }
   ]
 };
 
-export function recommendationsFor(name) {
+import { classifyLicense, validateAllowedLicenses } from './license-policy.mjs';
+
+export function recommendationsFor(name, options = {}) {
+  validateAllowedLicenses(options.allowedLicenses);
+  if (options.ecosystem && !['npm', 'system', 'vendored'].includes(options.ecosystem)) return [];
   const direct = CATALOG[String(name).toLowerCase()] ?? [];
-  return direct.filter((item) => !item.blocked);
+  return direct.filter(item => !item.blocked && classifyLicense(item.license, options).level === 'allow').map(item => ({
+    ...item,
+    ecosystem: 'npm',
+    source: 'curated-discovery',
+    verification: 'unverified',
+    version: null,
+    note: `${item.note} Discovery only: verify the selected version, artifact LICENSE/NOTICE, transitives and actual API fit.`
+  }));
 }
 
 export function catalogEntries() {

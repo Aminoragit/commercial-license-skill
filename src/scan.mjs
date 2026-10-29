@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { classifyLicense, isAtLeast, LEVEL_ORDER } from './license-policy.mjs';
+import { classifyLicense, isAtLeast, LEVEL_ORDER, validateAllowedLicenses } from './license-policy.mjs';
 import { recommendationsFor } from './catalog.mjs';
 import { detectDependencies } from './detectors.mjs';
 import { readJson, toPosix } from './utils.mjs';
@@ -27,25 +27,38 @@ function deploymentQuestions() {
 
 export function scanProject(root, options = {}) {
   const absoluteRoot = path.resolve(root);
+  if (!fs.statSync(absoluteRoot).isDirectory()) throw new Error(`Scan root must be a directory: ${absoluteRoot}`);
   const config = loadConfig(absoluteRoot);
+  const profile = options.profile ?? config.profile ?? 'commercial-safe';
+  if (profile !== 'commercial-safe') throw new Error(`Unsupported profile: ${profile}. Use allowedLicenses to set explicit license conditions.`);
+  const allowedLicenses = validateAllowedLicenses(options.allowedLicenses ?? config.allowedLicenses);
+  const maxSnippetLength = Number(options.maxSnippetLength ?? config.maxSnippetLength ?? 240);
+  if (!Number.isInteger(maxSnippetLength) || maxSnippetLength < 0 || maxSnippetLength > 10000) throw new Error('maxSnippetLength must be an integer from 0 to 10000');
   const includeDev = Boolean(options.includeDev ?? config.includeDev);
   const ignoredNames = new Set([...(config.ignorePackages ?? []), ...(options.ignorePackages ?? [])].map((value) => String(value).toLowerCase()));
   const sourceIndex = buildSourceIndex(absoluteRoot, { ignored: config.ignorePaths ?? [] });
-  const dependencies = detectDependencies(absoluteRoot)
+  const inventory = detectDependencies(absoluteRoot);
+  const excluded = inventory.filter(item => (!includeDev && item.scope === 'dev') || ignoredNames.has(item.name.toLowerCase()));
+  const dependencies = inventory
     .filter((item) => includeDev || item.scope !== 'dev')
     .filter((item) => !ignoredNames.has(item.name.toLowerCase()))
     .map((item) => {
-      const assessment = classifyLicense(item.license);
+      let assessment = classifyLicense(item.license, { allowedLicenses });
+      if (item.licenseConflict) {
+        const declarations = item.licenseDeclarations.map(entry => classifyLicense(entry.license, { allowedLicenses }));
+        const strongest = declarations.sort((a, b) => LEVEL_ORDER[b.level] - LEVEL_ORDER[a.level])[0];
+        assessment = { ...strongest, license: 'UNKNOWN', policyMatch: null, selectedLicense: null, level: LEVEL_ORDER[strongest.level] < LEVEL_ORDER.review ? 'review' : strongest.level, reason: `Conflicting license evidence; no grant selected. ${strongest.reason}` };
+      }
       const usageEvidence = findUsageEvidence(sourceIndex, item, {
         noSnippets: Boolean(options.noSnippets ?? config.noSnippets),
-        maxSnippetLength: Number(options.maxSnippetLength ?? config.maxSnippetLength ?? 240)
+        maxSnippetLength
       });
       return {
         ...item,
         usageEvidence,
         usageSummary: usageEvidence.length ? `${usageEvidence.length} source reference(s) found` : 'No source import reference found by the lightweight tracer',
         assessment,
-        recommendations: assessment.level === 'allow' ? [] : recommendationsFor(item.name),
+        recommendations: assessment.level === 'allow' ? [] : recommendationsFor(item.name, { allowedLicenses, ecosystem: item.ecosystem }),
         nextReview: assessment.level === 'allow' ? [] : deploymentQuestions()
       };
     })
@@ -61,7 +74,18 @@ export function scanProject(root, options = {}) {
     tool: 'commercial-license-skill',
     generatedAt: new Date().toISOString(),
     root: toPosix(absoluteRoot),
-    profile: options.profile ?? config.profile ?? 'commercial-safe',
+    profile,
+    policy: { allowedLicenses: allowedLicenses ?? null },
+    coverage: {
+      complete: false,
+      mode: 'bounded-local-triage',
+      excluded: excluded.map(item => ({ name: item.name, version: item.version, scope: item.scope })),
+      warnings: [
+        'Inventory is bounded and rooted at this directory; nested workspace manifests, symlinks, unsupported lockfiles, binary contents and assets without license files may be missed. No findings is not compliance clearance.',
+        ...['pnpm-lock.yaml', 'yarn.lock', 'uv.lock', 'poetry.lock', 'pyproject.toml'].filter(name => fs.existsSync(path.join(absoluteRoot, name))).map(name => `${name} is present but not resolved by this scanner; inspect it with ecosystem tooling.`),
+        ...(readJson(path.join(absoluteRoot, 'package-lock.json'))?.lockfileVersion === 1 ? ['npm lockfile v1 transitive entries are not resolved; use installed metadata or convert a copy with trusted package-manager tooling.'] : [])
+      ]
+    },
     summary: { total: dependencies.length, ...counts },
     notice: 'This report is an engineering triage aid, not legal advice. A license name alone cannot determine obligations. Confirm exact terms, distribution model, linking/bundling, modifications, and notices with qualified counsel before release.',
     dependencies
@@ -94,6 +118,8 @@ export function renderHuman(report) {
   lines.push('CommercialLicenseSkill — commercial-safe dependency triage');
   lines.push(`Root: ${report.root}`);
   lines.push(`Summary: ${report.summary.total} dependencies | critical ${report.summary.critical} | high ${report.summary.high} | review ${report.summary.review} | allow ${report.summary.allow}`);
+  if (report.policy.allowedLicenses) lines.push(`Requested licenses: ${report.policy.allowedLicenses.join(', ')}`);
+  lines.push(`Coverage: partial local inventory; ${report.coverage.excluded.length} excluded record(s).`);
   lines.push('');
   for (const item of report.dependencies) {
     const marker = item.assessment.level === 'allow' ? '✓' : item.assessment.level === 'review' ? '!' : '✗';
@@ -109,6 +135,7 @@ export function renderHuman(report) {
     if (item.notes.length) for (const note of item.notes) lines.push(`  note: ${note}`);
   }
   lines.push('');
+  for (const warning of report.coverage.warnings) lines.push(`COVERAGE: ${warning}`);
   lines.push(`NOTICE: ${report.notice}`);
   return lines.join('\n');
 }

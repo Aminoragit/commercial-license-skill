@@ -1,19 +1,23 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execFileSync } from 'node:child_process';
-import { exists, readJson, relativeTo, toPosix, unique, walkFiles } from './utils.mjs';
+import { exists, normalizeLicense, readJson, relativeTo, toPosix, unique, walkFiles } from './utils.mjs';
 
-function packageRecord({ ecosystem, name, version = 'unknown', license = 'UNKNOWN', source, scope = 'runtime', evidence = [], notes = [] }) {
-  return { ecosystem, name, version, license, source, scope, evidence: unique(evidence), notes: unique(notes) };
+function packageRecord({ ecosystem, name, version = 'unknown', license = 'UNKNOWN', source, licenseSource, scope = 'runtime', evidence = [], notes = [] }) {
+  return { ecosystem, name, version, license, source, scope, evidence: unique(evidence), notes: unique(notes), licenseDeclarations: [{ license, source: licenseSource ?? evidence[0] ?? source }] };
 }
 
 function readPackageLicense(root, packageName) {
+  if (!/^(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+(?:\/node_modules\/(?:@[a-z0-9._-]+\/)?[a-z0-9._-]+)*$/i.test(packageName) || packageName.split('/').some(part => part === '..' || part === '.')) throw new Error(`Invalid package location: ${packageName}`);
   const packagePath = path.join(root, 'node_modules', ...packageName.split('/'), 'package.json');
+  if (exists(packagePath)) {
+    const relative = path.relative(fs.realpathSync(root), fs.realpathSync(packagePath));
+    if (relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) throw new Error(`Package metadata resolves outside the scan root: ${packageName}`);
+  }
   const metadata = readJson(packagePath, {});
   return { license: metadata.license ?? metadata.licenses ?? 'UNKNOWN', packagePath, metadata };
 }
 
-function detectInstalledNodeModules(root) {
+function detectInstalledNodeModules(root, lock, manifest) {
   const modulesRoot = path.join(root, 'node_modules');
   if (!exists(modulesRoot)) return [];
   const packageFiles = walkFiles(modulesRoot, (filePath, name) => name === 'package.json' && filePath.includes('node_modules'), {
@@ -23,14 +27,16 @@ function detectInstalledNodeModules(root) {
   const records = [];
   for (const packagePath of packageFiles) {
     const metadata = readJson(packagePath, {});
-    if (!metadata.name) continue;
+    const relative = toPosix(relativeTo(root, packagePath));
+    if (!metadata.name || !/(?:^|\/)node_modules\/(?:@[^/]+\/)?[^/]+\/package\.json$/.test(relative)) continue;
+    const directDev = relative === `node_modules/${metadata.name}/package.json` && manifest.devDependencies?.[metadata.name] && !manifest.dependencies?.[metadata.name] && !manifest.optionalDependencies?.[metadata.name] && !manifest.peerDependencies?.[metadata.name];
     records.push(packageRecord({
       ecosystem: 'npm',
       name: metadata.name,
       version: metadata.version ?? 'unknown',
       license: metadata.license ?? metadata.licenses ?? 'UNKNOWN',
       source: toPosix(relativeTo(root, packagePath)),
-      scope: 'transitive',
+      scope: directDev || lock?.packages?.[relative.replace(/\/package\.json$/, '')]?.dev ? 'dev' : 'transitive',
       evidence: [toPosix(relativeTo(root, packagePath))],
       notes: ['Resolved from installed node_modules metadata.']
     }));
@@ -46,15 +52,18 @@ function flattenNpmLockPackages(root, lock) {
       const name = value.name ?? key.split('node_modules/').pop();
       const metadata = readPackageLicense(root, key.slice('node_modules/'.length));
       const hasMetadata = exists(metadata.packagePath);
+      const sameVersion = hasMetadata && (!value.version || value.version === metadata.metadata.version);
+      const hasLockedLicense = value.license !== undefined && value.license !== null;
       result.push(packageRecord({
         ecosystem: 'npm',
         name,
         version: value.version ?? metadata.metadata.version,
-        license: value.license ?? metadata.license,
+        license: value.license ?? (sameVersion ? metadata.license : 'UNKNOWN'),
+        licenseSource: hasLockedLicense ? 'package-lock.json' : sameVersion ? toPosix(relativeTo(root, metadata.packagePath)) : 'package-lock.json',
         source: toPosix(relativeTo(root, path.join(root, 'package-lock.json'))),
-        scope: 'transitive',
+        scope: value.dev ? 'dev' : value.optional ? 'optional' : 'transitive',
         evidence: hasMetadata ? [toPosix(relativeTo(root, metadata.packagePath))] : [],
-        notes: ['Resolved from package-lock.json and installed package metadata when available.']
+        notes: ['Resolved from package-lock.json and matching-version installed metadata when available.', ...(hasMetadata && !sameVersion ? ['Installed version differs from the locked version; its license metadata was not applied to this locked artifact.'] : [])]
       }));
     }
   }
@@ -65,10 +74,11 @@ export function detectNpm(root) {
   const packageFile = path.join(root, 'package.json');
   if (!exists(packageFile)) return [];
   const manifest = readJson(packageFile, {});
+  const lock = readJson(path.join(root, 'package-lock.json'));
   const records = [];
   const groups = [
     ['dependencies', 'runtime'],
-    ['optionalDependencies', 'runtime'],
+    ['optionalDependencies', 'optional'],
     ['peerDependencies', 'peer'],
     ['devDependencies', 'dev']
   ];
@@ -76,21 +86,21 @@ export function detectNpm(root) {
     for (const [name, requestedVersion] of Object.entries(manifest[group] ?? {})) {
       const metadata = readPackageLicense(root, name);
       const hasMetadata = exists(metadata.packagePath);
+      const locked = lock?.packages?.[`node_modules/${name}`];
       records.push(packageRecord({
         ecosystem: 'npm',
         name,
-        version: metadata.metadata.version ?? requestedVersion,
-        license: metadata.license,
+        version: metadata.metadata.version ?? locked?.version ?? requestedVersion,
+        license: metadata.license === 'UNKNOWN' ? locked?.license ?? 'UNKNOWN' : metadata.license,
         source: 'package.json',
         scope,
-        evidence: hasMetadata ? [toPosix(relativeTo(root, metadata.packagePath))] : [],
-        notes: hasMetadata ? [] : ['Package is declared but not installed; license metadata could not be read locally.']
+        evidence: hasMetadata ? [toPosix(relativeTo(root, metadata.packagePath))] : locked?.license ? ['package-lock.json'] : [],
+        notes: hasMetadata ? [] : [locked?.license ? 'License declaration resolved from package-lock.json; exact artifact text still needs verification.' : 'Package is declared but not installed; license metadata could not be read locally.']
       }));
     }
   }
-  const lock = readJson(path.join(root, 'package-lock.json'));
   if (lock) records.push(...flattenNpmLockPackages(root, lock));
-  records.push(...detectInstalledNodeModules(root));
+  records.push(...detectInstalledNodeModules(root, lock, manifest));
   return records;
 }
 
@@ -109,7 +119,7 @@ function installedPythonMetadata(root, packageName) {
     const text = fs.readFileSync(filePath, 'utf8');
     const name = text.match(/^Name:\s*(.+)$/mi)?.[1]?.trim();
     if (!name || name.toLowerCase().replace(/[-_.]+/g, '-') !== normalized) continue;
-    const license = text.match(/^License:\s*(.+)$/mi)?.[1]?.trim() || text.match(/^Classifier:\s*License :: OSI Approved :: (.+)$/mi)?.[1]?.trim() || 'UNKNOWN';
+    const license = text.match(/^License-Expression:[ \t]*(.+)$/mi)?.[1]?.trim() || text.match(/^License:[ \t]*(.+)$/mi)?.[1]?.trim() || text.match(/^Classifier:[ \t]*License :: OSI Approved :: (.+)$/mi)?.[1]?.trim() || 'UNKNOWN';
     const version = text.match(/^Version:\s*(.+)$/mi)?.[1]?.trim() || 'unknown';
     return { license, version, filePath };
   }
@@ -145,7 +155,7 @@ export function detectPython(root) {
 export function detectCargo(root) {
   const lockPath = path.join(root, 'Cargo.lock');
   if (!exists(lockPath)) return [];
-  const text = fs.readFileSync(lockPath, 'utf8');
+  const text = fs.readFileSync(lockPath, 'utf8').replace(/\r\n/g, '\n');
   const records = [];
   for (const block of text.split(/\n\[\[package\]\]\n/).slice(1)) {
     const name = block.match(/^name\s*=\s*"([^"]+)"/m)?.[1];
@@ -212,14 +222,16 @@ export function detectSystemSignals(root) {
 }
 
 function inferVendoredLicense(text) {
-  if (/GNU AFFERO GENERAL PUBLIC LICENSE/i.test(text)) return 'AGPL-3.0';
+  const spdx = text.match(/SPDX-License-Identifier:[ \t]*([^\r\n]+)/i)?.[1]?.trim();
+  if (spdx) return spdx;
+  if (/GNU AFFERO GENERAL PUBLIC LICENSE/i.test(text)) return 'AGPL';
   if (/SERVER SIDE PUBLIC LICENSE|SSPL/i.test(text)) return 'SSPL-1.0';
   if (/GNU LESSER GENERAL PUBLIC LICENSE/i.test(text)) return 'LGPL';
   if (/GNU GENERAL PUBLIC LICENSE/i.test(text)) return 'GPL';
   if (/COMMONS CLAUSE/i.test(text)) return 'Commons Clause';
   if (/BUSINESS SOURCE LICENSE|BUSL/i.test(text)) return 'BUSL';
   if (/ELASTIC LICENSE/i.test(text)) return 'Elastic License';
-  return null;
+  return 'UNKNOWN';
 }
 
 export function detectVendoredLicenses(root) {
@@ -234,7 +246,6 @@ export function detectVendoredLicenses(root) {
     let text = '';
     try { text = fs.readFileSync(filePath, 'utf8').slice(0, 300_000); } catch { continue; }
     const license = inferVendoredLicense(text);
-    if (!license) continue;
     const relative = toPosix(relativeTo(root, filePath));
     records.push(packageRecord({
       ecosystem: 'vendored',
@@ -254,17 +265,23 @@ function mergeRecords(records) {
   const map = new Map();
   const scopePriority = { runtime: 5, vendored: 5, optional: 4, peer: 3, transitive: 2, dev: 1 };
   for (const record of records) {
-    const key = `${record.ecosystem}:${record.name}:${record.version}`.toLowerCase();
+    const key = `${record.ecosystem}:${record.name.toLowerCase()}:${record.version}`;
     const previous = map.get(key);
     if (!previous) map.set(key, record);
     else {
       previous.evidence = unique([...previous.evidence, ...record.evidence]);
       previous.notes = unique([...previous.notes, ...record.notes]);
+      previous.licenseDeclarations = [...new Map([...previous.licenseDeclarations, ...record.licenseDeclarations].map(entry => [JSON.stringify([entry.source, entry.license]), entry])).values()];
       if ((scopePriority[record.scope] ?? 0) > (scopePriority[previous.scope] ?? 0)) {
         previous.scope = record.scope;
         previous.source = record.source;
       }
-      if (previous.license === 'UNKNOWN' && record.license !== 'UNKNOWN') previous.license = record.license;
+      const declarations = new Set(previous.licenseDeclarations.map(item => normalizeLicense(item.license)).filter(id => id !== 'UNKNOWN'));
+      if (declarations.size > 1) {
+        previous.license = 'UNKNOWN';
+        previous.licenseConflict = true;
+        previous.notes = unique([...previous.notes, 'Conflicting local license declarations; inspect the exact locked artifact before choosing a grant.']);
+      } else if (!previous.licenseConflict && normalizeLicense(previous.license) === 'UNKNOWN' && normalizeLicense(record.license) !== 'UNKNOWN') previous.license = record.license;
     }
   }
   return [...map.values()];

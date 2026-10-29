@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - Unreleased
+
+### Added
+- Explicit accepted-license conditions across CLI, reports, candidate discovery and MCP.
+- Bounded SPDX grammar parsing, policy branch selection and adversarial regression coverage.
+- agy CLI installation adapter, shared-path deduplication and preservation of existing edits.
+- Evidence/coverage reporting, broader portable review instructions and manual evaluation scenarios.
+- Original AI-generated README hero and workflow artwork with prompts and provenance notes.
+- Four-round adversarial review record, bilingual READMEs and local documentation checks.
+
+### Fixed
+- Parenthesized AND/OR expressions and unknown exceptions incorrectly receiving allow.
+- Lockfile-only direct resolution, dev-transitive scope, stale conflicting declarations, Python License-Expression priority and Cargo CRLF parsing.
+- Invalid CLI/MCP argument handling, config override defaults and canonical MCP root checks.
+- Misleading cross-domain and fictional replacement candidates; discovery is explicitly unverified.
+- Inaccurate legal claims, MCP argument examples and unsupported ecosystem/platform promises.
+
 ## [0.3.3] - 2026-06-05
 
 ### Changed

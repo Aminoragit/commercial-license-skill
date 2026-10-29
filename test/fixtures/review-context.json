@@ -1,0 +1,13 @@
+{
+  "synthetic": true,
+  "deployment": "Commercial desktop application, proprietary application source",
+  "parentRepositoryLicense": "MIT",
+  "components": [
+    { "path": "assets/hero.jpg", "role": "image", "license": "CC-BY-NC-4.0", "source": "Synthetic evaluation input" },
+    { "path": "fonts/brand.otf", "role": "font", "license": "UNKNOWN", "source": "Synthetic evaluation input" },
+    { "path": "models/runner.py", "role": "model code", "license": "MIT", "source": "Synthetic evaluation input" },
+    { "path": "models/weights.bin", "role": "model weights", "license": "Custom non-commercial research terms", "source": "Synthetic evaluation input" },
+    { "path": "data/training.jsonl", "role": "dataset", "license": "CC-BY-SA-4.0", "source": "Synthetic evaluation input" },
+    { "path": "vendor/dual", "role": "library", "license": "AGPL-3.0-only OR purchased-commercial-grant", "purchased": false, "source": "Synthetic evaluation input" }
+  ]
+}

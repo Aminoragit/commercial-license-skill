@@ -9,8 +9,9 @@ export const SKILL_NAME = 'commercial-license-skill';
 export function readJson(filePath, fallback = null) {
   try {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-  } catch {
-    return fallback;
+  } catch (error) {
+    if (error.code === 'ENOENT') return fallback;
+    throw new Error(`Cannot read JSON ${filePath}: ${error.message}`);
   }
 }
 
@@ -62,6 +63,7 @@ export function commandExists(command) {
 export function parseArgs(argv) {
   const positionals = [];
   const options = {};
+  const booleans = new Set(['help', 'global', 'project', 'all', 'yes', 'dry-run', 'json', 'online', 'include-dev', 'no-snippets']);
   for (let index = 0; index < argv.length; index += 1) {
     const item = argv[index];
     if (!item.startsWith('--')) {
@@ -70,12 +72,16 @@ export function parseArgs(argv) {
     }
     const equalIndex = item.indexOf('=');
     if (equalIndex !== -1) {
-      options[item.slice(2, equalIndex)] = item.slice(equalIndex + 1);
+      const key = item.slice(2, equalIndex), raw = item.slice(equalIndex + 1);
+      if (booleans.has(key) && !['true', 'false'].includes(raw)) throw new Error(`--${key} expects true or false`);
+      options[key] = booleans.has(key) ? raw === 'true' : raw;
       continue;
     }
     const key = item.slice(2);
     const next = argv[index + 1];
-    if (next && !next.startsWith('--')) {
+    if (booleans.has(key)) {
+      options[key] = true;
+    } else if (next && !next.startsWith('--')) {
       options[key] = next;
       index += 1;
     } else {
@@ -96,7 +102,8 @@ export function splitComma(value) {
 export function normalizeLicense(raw) {
   if (!raw) return 'UNKNOWN';
   if (Array.isArray(raw)) {
-    return raw.map(item => normalizeLicense(item)).filter(l => l !== 'UNKNOWN').join(' OR ') || 'UNKNOWN';
+    // A legacy list does not establish alternatives versus cumulative terms.
+    return raw.length === 1 ? normalizeLicense(raw[0]) : 'UNKNOWN';
   }
   if (typeof raw === 'object') {
     if (raw.type) return normalizeLicense(raw.type);
@@ -105,7 +112,6 @@ export function normalizeLicense(raw) {
   }
   return String(raw)
     .trim()
-    .replace(/^\(|\)$/g, '')
     .replace(/\s+/g, ' ')
     .toUpperCase();
 }

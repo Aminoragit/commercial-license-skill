@@ -1,33 +1,19 @@
-# SPDX Identifier Reference
+# SPDX expressions and unresolved declarations
 
-`commercial-license-skill` parses standard SPDX license expressions to evaluate risks. Below is a reference of common SPDX identifiers mapped to our triage profiles.
+The local parser handles bounded expression grammar, not the entire SPDX License List or legal compatibility. It preserves parentheses and evaluates `WITH` before `AND` before `OR`. Unknown identifiers need review; a parse error never results in `allow`. Legacy multi-entry license arrays are ambiguous unless their relationship is independently established.
 
-## Permissive (ALLOW Profile)
-- `MIT`
-- `Apache-2.0`
-- `BSD-2-Clause`
-- `BSD-3-Clause`
-- `ISC`
-- `Unlicense`
-- `WTFPL`
-- `CC0-1.0`
+| Expression | Meaning in the default triage |
+|---|---|
+| `MIT OR GPL-3.0-only` | MIT is a possible selected grant; record the choice and verify it covers this artifact. |
+| `MIT AND GPL-3.0-only` | Both sets of obligations apply; high. |
+| `(MIT OR Apache-2.0) AND GPL-3.0-only` | GPL remains cumulative; high. |
+| `MIT OR Apache-2.0 AND GPL-3.0-only` | MIT is a standalone branch because AND binds before OR. |
+| `GPL-2.0-only WITH Classpath-exception-2.0` | Review the exception text and covered use; retain base severity pending review. |
+| `MIT WITH invented-exception` | Review, never automatic allow. |
+| `SEE LICENSE IN LICENSE.txt`, `LicenseRef-Custom`, `NOASSERTION`, `NONE` | Resolve text/rights; do not infer commercial permission. |
 
-## Weak Copyleft / Hybrid (REVIEW Profile)
-- `LGPL-2.0-only` / `LGPL-2.0-or-later`
-- `LGPL-2.1-only` / `LGPL-2.1-or-later`
-- `LGPL-3.0-only` / `LGPL-3.0-or-later`
-- `MPL-2.0`
-- `EPL-1.0` / `EPL-2.0`
-- `CDDL-1.0` / `CDDL-1.1`
+`--allowed-licenses MIT,Apache-2.0` requires an entire usable branch to match. For `AND`, every operand must match; for `OR`, a complete branch may match. Exceptions and absent rights produce an unresolved match. The selected grant is chosen within the accepted branches, not from a different disallowed branch.
 
-## Strong Copyleft (CRITICAL / HIGH Profile)
-- `GPL-2.0-only` / `GPL-2.0-or-later`
-- `GPL-3.0-only` / `GPL-3.0-or-later`
-- `AGPL-3.0-only` / `AGPL-3.0-or-later`
-- `SSPL-1.0`
-- `BUSL-1.1` (Business Source License)
-- `EUPL-1.2`
-- `CC-BY-NC-4.0` (Non-commercial variations)
+`-only` and `-or-later` express different grants. Do not silently upgrade a version or assume a deprecated identifier establishes an exception. `BSL-1.0` (Boost) and `BUSL-1.1` (Business Source) are different licenses.
 
-## Multi-Licensing & Expressions
-Expressions like `(MIT OR GPL-3.0)` are resolved dynamically. By default, dual-licensing containing at least one permissive option is classified as **ALLOW**, provided you select the permissive licensing path.
+Reference: [SPDX specification, Annex D](https://spdx.github.io/spdx-spec/v2.3.1/SPDX-license-expressions/).

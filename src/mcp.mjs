@@ -1,5 +1,7 @@
 import readline from 'node:readline';
 import path from 'node:path';
+import fs from 'node:fs';
+import { validateAllowedLicenses } from './license-policy.mjs';
 import { scanProject, CLI_VERSION } from './scan.mjs';
 import { recommendationsFor } from './catalog.mjs';
 import { searchNpmCandidates } from './registry.mjs';
@@ -15,10 +17,10 @@ for (let i = 0; i < process.argv.length; i++) {
 }
 
 function isPathAllowed(targetPath) {
-  const resolvedTarget = path.resolve(targetPath);
+  const resolvedTarget = fs.realpathSync(path.resolve(targetPath));
   return ALLOW_ROOTS.some(allowedRoot => {
-    const relative = path.relative(allowedRoot, resolvedTarget);
-    return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
+    const relative = path.relative(fs.realpathSync(allowedRoot), resolvedTarget);
+    return relative === '' || (relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative));
   });
 }
 
@@ -30,7 +32,9 @@ const TOOLS = [
       type: 'object',
       properties: {
         path: { type: 'string', description: 'Local project directory. Defaults to current working directory.' },
-        includeDev: { type: 'boolean', description: 'Include development-only dependencies.' }
+        includeDev: { type: 'boolean', description: 'Include development-only dependencies.' },
+        noSnippets: { type: 'boolean', description: 'Redact source snippets from the report.' },
+        allowedLicenses: { type: 'array', minItems: 1, items: { type: 'string' }, description: 'Explicit accepted license identifiers.' }
       },
       additionalProperties: false
     }
@@ -43,6 +47,8 @@ const TOOLS = [
       required: ['packageName'],
       properties: {
         packageName: { type: 'string' },
+        query: { type: 'string', description: 'Capability keywords for npm discovery.' },
+        allowedLicenses: { type: 'array', minItems: 1, items: { type: 'string' } },
         online: { type: 'boolean', description: 'When true, query the public npm registry for discovery candidates.' },
         size: { type: 'integer', minimum: 1, maximum: 30 }
       },
@@ -53,6 +59,21 @@ const TOOLS = [
 
 function result(value) {
   return { content: [{ type: 'text', text: JSON.stringify(value, null, 2) }] };
+}
+
+function validateArguments(tool, args) {
+  if (!args || typeof args !== 'object' || Array.isArray(args)) return 'Tool arguments must be an object';
+  for (const key of tool.inputSchema.required ?? []) if (args[key] === undefined) return `Missing required argument: ${key}`;
+  for (const [key, value] of Object.entries(args)) {
+    const spec = tool.inputSchema.properties[key];
+    if (!spec) return `Unknown argument: ${key}`;
+    if (spec.type === 'integer') {
+      if (!Number.isInteger(value) || value < spec.minimum || value > spec.maximum) return `Invalid integer: ${key}`;
+    } else if (spec.type === 'array') {
+      try { validateAllowedLicenses(value); } catch (error) { return error.message; }
+    } else if (typeof value !== spec.type || (spec.type === 'string' && !value.trim())) return `Invalid ${spec.type}: ${key}`;
+  }
+  return null;
 }
 
 export async function handleMcpRequest(message) {
@@ -66,19 +87,24 @@ export async function handleMcpRequest(message) {
   if (method === 'tools/call') {
     const name = params.name;
     const args = params.arguments ?? {};
+    const tool = TOOLS.find(tool => tool.name === name);
+    if (tool) {
+      const invalid = validateArguments(tool, args);
+      if (invalid) return { jsonrpc: '2.0', id, error: { code: -32602, message: invalid } };
+    }
     if (name === 'scan_project_licenses') {
       const targetPath = args.path ?? '.';
       if (!isPathAllowed(targetPath)) {
         return { jsonrpc: '2.0', id, error: { code: -32602, message: `Access denied. Target path '${targetPath}' is outside allowed roots.` } };
       }
-      return { jsonrpc: '2.0', id, result: result(scanProject(targetPath, { includeDev: Boolean(args.includeDev) })) };
+      return { jsonrpc: '2.0', id, result: result(scanProject(targetPath, { includeDev: args.includeDev, noSnippets: args.noSnippets, allowedLicenses: args.allowedLicenses })) };
     }
     if (name === 'recommend_permissive_alternatives') {
-      const curated = recommendationsFor(args.packageName);
+      const curated = recommendationsFor(args.packageName, { allowedLicenses: args.allowedLicenses });
       let discovered = [];
       let onlineError = null;
       if (args.online) {
-        try { discovered = await searchNpmCandidates(args.packageName, { size: args.size ?? 12 }); }
+        try { discovered = await searchNpmCandidates(args.query ?? args.packageName, { size: args.size ?? 12, allowedLicenses: args.allowedLicenses, excludeName: args.packageName }); }
         catch (error) { onlineError = error?.message ?? String(error); }
       }
       return { jsonrpc: '2.0', id, result: result({ packageName: args.packageName, curated, discovered, onlineError }) };
