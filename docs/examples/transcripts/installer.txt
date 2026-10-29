@@ -1,0 +1,24 @@
+
+🧼 commercial-license-skill 설치 마법사
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+감지되거나 연동 가능한 에이전트 프레임워크 목록입니다:
+
+  [1] 🤖 Claude Code  (감지됨: path:.claude)
+  [2] 🧠 OpenAI Codex  (감지됨: command:codex, path:.codex)
+  [3] 🚀 Google Antigravity (agy CLI)  (감지됨: command:agy, path:.agents, path:.gemini/antigravity-cli)
+  [4] 🛡️ OpenClaw  (옵션)
+  [5] 🕊️ Hermes Agent  (옵션)
+  [6] ♊ Gemini CLI  (감지됨: path:.gemini)
+  [7] 🐈 GitHub Copilot  (감지됨: path:.copilot)
+  [8] 🌐 Universal Agent Skills  (감지됨: path:.agents, portable fallback)
+
+설치할 프레임워크 번호를 반점(,)으로 구분해 입력해 주세요.
+👉 번호 입력 [기본값: 1,2,3,6,7,8]:
+✨ 설치 완료 리포트 (범위: 📁 project)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ✅ 🤖 claude-code  ➜  D:\commercial-license-skill\.commercial-license-skill\qa\installer-demo\.claude\skills\commercial-license-skill
+  ✅ 🧠 codex  ➜  D:\commercial-license-skill\.commercial-license-skill\qa\installer-demo\.agents\skills\commercial-license-skill
+  ⚠️  🚀 antigravity (건너뜀: Shared destination already handled by another selected framework.)
+  ✅ ♊ gemini-cli  ➜  D:\commercial-license-skill\.commercial-license-skill\qa\installer-demo\.gemini\skills\commercial-license-skill
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎉 에이전트 스킬 연동 작업이 성공적으로 처리되었습니다.

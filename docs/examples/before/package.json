@@ -1,0 +1,9 @@
+{
+  "name": "license-review-example",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "dependencies": {
+    "gpl-demo": "1.0.0"
+  }
+}

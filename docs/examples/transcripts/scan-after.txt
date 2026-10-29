@@ -1,0 +1,9 @@
+CommercialLicenseSkill — commercial-safe dependency triage
+Root: D:/commercial-license-skill/docs/examples/after
+Summary: 0 dependencies | critical 0 | high 0 | review 0 | allow 0
+Requested licenses: MIT, Apache-2.0
+Coverage: partial local inventory; 0 excluded record(s).
+
+
+COVERAGE: Inventory is bounded and rooted at this directory; nested workspace manifests, symlinks, unsupported lockfiles, binary contents and assets without license files may be missed. No findings is not compliance clearance.
+NOTICE: This report is an engineering triage aid, not legal advice. A license name alone cannot determine obligations. Confirm exact terms, distribution model, linking/bundling, modifications, and notices with qualified counsel before release.

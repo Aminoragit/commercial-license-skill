@@ -1,0 +1,16 @@
+CommercialLicenseSkill — commercial-safe dependency triage
+Root: D:/commercial-license-skill/docs/examples/before
+Summary: 1 dependencies | critical 0 | high 1 | review 0 | allow 0
+Requested licenses: MIT, Apache-2.0
+Coverage: partial local inventory; 0 excluded record(s).
+
+✗ [HIGH] npm:gpl-demo@1.0.0 — GPL-3.0-only
+  scope: runtime; source: package.json
+  Does not match requested license allowlist (MIT, Apache-2.0). Copyleft review: distribution, modifications and combination can impose source obligations. A manifest entry alone does not establish those obligations.
+  usage: 1 source reference(s) found
+    - src/unique.mjs:1 [js-import] [REDACTED]
+  note: License declaration resolved from package-lock.json; exact artifact text still needs verification.
+  note: Resolved from package-lock.json and matching-version installed metadata when available.
+
+COVERAGE: Inventory is bounded and rooted at this directory; nested workspace manifests, symlinks, unsupported lockfiles, binary contents and assets without license files may be missed. No findings is not compliance clearance.
+NOTICE: This report is an engineering triage aid, not legal advice. A license name alone cannot determine obligations. Confirm exact terms, distribution model, linking/bundling, modifications, and notices with qualified counsel before release.

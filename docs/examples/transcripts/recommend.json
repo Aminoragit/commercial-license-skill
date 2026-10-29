@@ -1,0 +1,20 @@
+{
+  "packageName": "imagemagick",
+  "allowedLicenses": [
+    "MIT"
+  ],
+  "curated": [
+    {
+      "name": "jimp",
+      "license": "MIT",
+      "note": "Pure-JavaScript image processing for simpler workloads. Discovery only: verify the selected version, artifact LICENSE/NOTICE, transitives and actual API fit.",
+      "ecosystem": "npm",
+      "source": "curated-discovery",
+      "verification": "unverified",
+      "version": null
+    }
+  ],
+  "discovered": [],
+  "onlineError": null,
+  "notice": "Discovery candidates are not verified replacements. Check versioned artifacts, notices, transitive licenses, maintenance and used APIs."
+}

@@ -1,0 +1,43 @@
+diff --git a/docs/examples/before/package-lock.json b/docs/examples/after/package-lock.json
+index f3386fa..04fd064 100644
+--- a/docs/examples/before/package-lock.json
++++ b/docs/examples/after/package-lock.json
+@@ -6,13 +6,7 @@
+     "": {
+       "name": "license-review-example",
+       "version": "1.0.0",
+-      "dependencies": {
+-        "gpl-demo": "1.0.0"
+-      }
+-    },
+-    "node_modules/gpl-demo": {
+-      "version": "1.0.0",
+-      "license": "GPL-3.0-only"
++      "dependencies": {}
+     }
+   }
+ }
+diff --git a/docs/examples/before/package.json b/docs/examples/after/package.json
+index 30df12d..baca839 100644
+--- a/docs/examples/before/package.json
++++ b/docs/examples/after/package.json
+@@ -3,7 +3,5 @@
+   "private": true,
+   "type": "module",
+   "version": "1.0.0",
+-  "dependencies": {
+-    "gpl-demo": "1.0.0"
+-  }
++  "dependencies": {}
+ }
+diff --git a/docs/examples/before/src/unique.mjs b/docs/examples/after/src/unique.mjs
+index 7ea9051..e96c167 100644
+--- a/docs/examples/before/src/unique.mjs
++++ b/docs/examples/after/src/unique.mjs
+@@ -1,5 +1,3 @@
+-import unique from 'gpl-demo';
+-
+ export function uniqueValues(values) {
+-  return unique(values);
++  return [...new Set(values)];
+ }

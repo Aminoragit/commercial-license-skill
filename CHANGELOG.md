@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - Unreleased
 
 ### Added
+- Visual usage gallery with actual CLI/installer transcripts, an executable before/after fixture and clearly labeled platform workflow examples.
 - Explicit accepted-license conditions across CLI, reports, candidate discovery and MCP.
 - Bounded SPDX grammar parsing, policy branch selection and adversarial regression coverage.
 - agy CLI installation adapter, shared-path deduplication and preservation of existing edits.
