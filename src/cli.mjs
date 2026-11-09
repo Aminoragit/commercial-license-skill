@@ -5,6 +5,7 @@ import { CLI_VERSION, scanProject, shouldFail, writeReport } from './scan.mjs';
 import { recommendationsFor } from './catalog.mjs';
 import { searchNpmCandidates } from './registry.mjs';
 import { runMcpServer } from './mcp.mjs';
+import { searchClauses } from './superlinked.mjs';
 
 const HELP = `
 CommercialLicenseSkill — commercial-safe license triage for agentic coding workflows
@@ -15,6 +16,7 @@ Usage:
   commercial-license-skill doctor [--json]
   commercial-license-skill scan [path] [--format human|json|sarif] [--output file] [--include-dev] [--allowed-licenses MIT,Apache-2.0] [--fail-on review|high|critical]
   commercial-license-skill recommend <package> [--allowed-licenses MIT,Apache-2.0] [--online] [--query keywords] [--json]
+  commercial-license-skill ask "<question>" [--json]
   commercial-license-skill mcp
   commercial-license-skill help
 
@@ -40,6 +42,7 @@ export async function main(argv) {
     doctor: ['json'],
     scan: ['format', 'output', 'include-dev', 'fail-on', 'allowed-licenses', 'profile', 'ignore', 'no-snippets', 'max-snippet-length'],
     recommend: ['online', 'json', 'allowed-licenses', 'query', 'size'],
+    ask: ['json'],
     mcp: ['allow-root'], help: []
   };
   for (const key of Object.keys(options)) {
@@ -96,6 +99,33 @@ export async function main(argv) {
       if (!lines.length) lines.push(`No curated replacement found for ${packageName}. Re-run with --online or ask the agent to search upstream repositories and verify exact license terms, activity, API fit, and migration cost.`);
       console.log(lines.join('\n'));
     }
+    return;
+  }
+  if (command === 'ask') {
+    const question = positionals.join(' ');
+    if (!question.trim()) throw new Error('Usage: commercial-license-skill ask "<question>" [--json]');
+    const result = await searchClauses(question);
+    if (options.json) {
+      console.log(JSON.stringify({
+        query: result.query,
+        mode: result.mode,
+        model: result.model,
+        usage: result.usage,
+        results: result.results.map((item) => ({ licenseId: item.licenseId, kind: item.kind, score: item.score, text: item.text })),
+      }, null, 2));
+      return;
+    }
+    const lines = [
+      `Mode: ${result.mode === 'sie' ? `SIE (${result.model})` : 'local (keyword fallback — no SIE key)'}`,
+      `Query: ${result.query}`,
+      '',
+    ];
+    result.results.forEach((item, index) => {
+      lines.push(`${index + 1}. ${item.licenseId} · ${item.kind} · ${item.score.toFixed(4)}`);
+      lines.push(`   ${item.text}`);
+    });
+    lines.push('', 'Summaries only — not legal advice. Check the license text before relying on an answer.');
+    console.log(lines.join('\n'));
     return;
   }
   if (command === 'mcp') {
