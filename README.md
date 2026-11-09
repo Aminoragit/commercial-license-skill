@@ -89,6 +89,29 @@ commercial-license-skill recommend imagemagick --allowed-licenses MIT --json
 
 Catalog and npm search results are discovery leads. Verify the selected version, license text, transitive/native dependencies and used APIs before adoption. Add `--online --query "image processing"` for npm discovery.
 
+## Ask with Superlinked (SIE)
+
+Ask a license question in Korean or English and get the matching clauses, ranked by meaning:
+
+```bash
+commercial-license-skill ask "Can I distribute this commercially?"
+commercial-license-skill ask "SaaS로 제공하면 소스 공개해야 하나?" --json
+```
+
+It searches 36 short clause summaries — 12 licenses (MIT, Apache-2.0, BSD-2/3-Clause, ISC, GPL-2.0/3.0-only, LGPL-2.1/3.0-only, AGPL-3.0-only, MPL-2.0, EPL-2.0) across 3 kinds (commercial use, source disclosure, notice). With a Superlinked API key it embeds the question and the clauses with `BAAI/bge-m3` and ranks them by cosine similarity. Without a key it falls back to local keyword search and says so in the output. No generation model is used; answers are clause summaries with a license id and a score.
+
+Set the key from the environment only — never commit it to the repository:
+
+```bash
+export SUPERLINKED_API_KEY="..."   # or SIE_API_KEY
+```
+
+Verified 2026-11-09: the SIE model catalog lists 110 models including `BAAI/bge-m3` and `Qwen/Qwen3-Reranker-0.6B`; embedding two short sentences returned 1024-dimension vectors and cost 1 credit. A live `ask` in SIE mode returned `mode: sie` with `AGPL-3.0-only` on top, and one batched call (question + 36 clauses, 1547 tokens) cost 6 credits. Without a key the command runs in local mode.
+
+Cost guardrails: one batched embeddings call (question + 36 clauses), top 5 results, no generation. A single `ask` costs only a few credits at most, so the $520 launch credits cover development and demo use.
+
+Clause texts are summaries, not legal advice. Check the license text before relying on an answer.
+
 ## Scope
 
 | Local CLI | Agent follow-up |

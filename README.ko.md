@@ -89,6 +89,29 @@ commercial-license-skill recommend imagemagick --allowed-licenses MIT --json
 
 내장 목록·npm 검색은 후보 탐색입니다. 채택 전 정확한 버전의 원문, 전이·네이티브 의존성과 사용 API를 확인합니다. `--online --query "image processing"`을 추가하면 npm 검색을 사용합니다.
 
+## Superlinked(SIE)로 질문하기
+
+라이선스 질문을 한국어·영어로 물으면 뜻이 맞는 조항을 찾아 순위를 매겨 보여줍니다.
+
+```bash
+commercial-license-skill ask "상용 배포 가능한가?"
+commercial-license-skill ask "SaaS로 제공하면 소스 공개해야 하나?" --json
+```
+
+12개 라이선스(MIT, Apache-2.0, BSD-2/3-Clause, ISC, GPL-2.0/3.0-only, LGPL-2.1/3.0-only, AGPL-3.0-only, MPL-2.0, EPL-2.0)에 대해 상용 이용·소스 공개·고지 의무 3종, 총 36개의 짧은 조항 요약을 검색합니다. Superlinked API 키가 있으면 `BAAI/bge-m3`으로 질문과 조항을 임베딩해 코사인 유사도 순으로 정렬합니다. 키가 없으면 로컬 키워드 검색으로 동작하고, 출력에 그렇게 표시합니다. 생성 모델은 쓰지 않으며, 답은 라이선스 식별자·점수와 함께 조항 요약으로만 나옵니다.
+
+키는 환경변수로만 넣어주세요. 저장소에 키를 올리지 마세요.
+
+```bash
+export SUPERLINKED_API_KEY="..."   # 또는 SIE_API_KEY
+```
+
+2026-11-09 실측 검증: SIE 모델 목록은 110개로 `BAAI/bge-m3`와 `Qwen/Qwen3-Reranker-0.6B`가 모두 있습니다. 짧은 문장 2개를 임베딩하면 1024차원 벡터가 돌아오고 1크레딧이 들었습니다. `ask`를 SIE 모드로 직접 실행하면 `mode: sie`로 답이 오고 `AGPL-3.0-only`가 최상위로 나왔으며, 질문 + 조항 36개를 한 번에 보낸 호출(1547토큰)은 6크레딧이 들었습니다. 키가 없으면 로컬 모드로 동작합니다.
+
+비용 가드레일: 질문 + 조항 36개를 한 번의 임베딩 호출로 묶어 보내고, 상위 5개만 보여주며, 생성 모델은 쓰지 않습니다. `ask` 한 번에 드는 비용은 몇 크레딧 수준이라, $520 런치 크레딧으로 개발·데모에 충분합니다.
+
+조항 내용은 요약이며 법적 조언이 아닙니다. 실제 판단 전에는 라이선스 원문을 직접 확인하세요.
+
 ## 검사 범위
 
 | 로컬 CLI | 에이전트 후속 조사 |

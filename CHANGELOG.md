@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - Unreleased
 
 ### Added
+- `ask` command with Superlinked SIE semantic clause search (BAAI/bge-m3 embeddings over 36 license-clause summaries, local keyword fallback without a key) and bilingual README sections.
 - Visual usage gallery with actual CLI/installer transcripts, an executable before/after fixture and clearly labeled platform workflow examples.
 - Explicit accepted-license conditions across CLI, reports, candidate discovery and MCP.
 - Bounded SPDX grammar parsing, policy branch selection and adversarial regression coverage.
