@@ -89,7 +89,7 @@ commercial-license-skill recommend imagemagick --allowed-licenses MIT --json
 
 Catalog and npm search results are discovery leads. Verify the selected version, license text, transitive/native dependencies and used APIs before adoption. Add `--online --query "image processing"` for npm discovery.
 
-## Ask with Superlinked (SIE)
+## Optional : Ask with Superlinked (SIE)
 
 Ask a license question in Korean or English and get the matching clauses, ranked by meaning:
 
